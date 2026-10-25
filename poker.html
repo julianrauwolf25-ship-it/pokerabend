@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guruhalle Stammtisch – Pokerabend</title>
+<meta name="description" content="Texas Hold'em mit Spielgeld für den Guruhalle-Discord. Link öffnen, Namen eingeben, Platz nehmen.">
+<meta property="og:title" content="Guruhalle Stammtisch – Pokerabend">
+<meta property="og:description" content="No-Limit Hold'em mit Spielgeld: bis zu 12 Leute an einem Tisch, jederzeit einsteigen. To the Moon! 🚀">
+<meta name="theme-color" content="#0b0907">
+<style>html,body{margin:0;height:100%;background:#0b0907;color:#f5eee2;font:16px system-ui,sans-serif}#l{display:grid;place-items:center;align-content:center;gap:14px;height:100%;text-align:center;padding:16px;box-sizing:border-box}#c{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#ffc56b,#f7931a 55%,#b85f05);color:#fff;font:800 34px/1 system-ui,sans-serif;box-shadow:0 0 28px rgba(247,147,26,.6);animation:s 1.6s ease-in-out infinite}@keyframes s{50%{transform:rotateY(180deg)}}#t{color:#f2b33d;font-weight:700;letter-spacing:.08em;text-transform:uppercase}</style>
+</head>
+<body>
+<div id="l"><div id="c">₿</div><div id="t">Guruhalle Stammtisch</div><div id="m">Pokertisch wird geladen …</div></div>
+<script>
+// Lädt den Tisch von Google Apps Script – ohne Google-Anmeldung, daher egal wie viele Konten angemeldet sind
+var API = 'https://script.google.com/macros/s/AKfycbxPyN_HEhryQYB_p7u61YUh6KqOP1G2CabTS5XM0nQbynswcKALsfoGk-dfYokaUnyX/exec';
+function load(n) {
+  fetch(API + '?ui=1', { credentials: 'omit' }).then(function (r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.text();
+  }).then(function (h) {
+    h = h.replace('<head>', '<head><script>window.PK_API=' + JSON.stringify(API) + ';<\/script>');
+    document.open(); document.write(h); document.close();
+  }).catch(function () {
+    document.getElementById('m').textContent = 'Verbindung klappt gerade nicht – neuer Versuch …';
+    setTimeout(function () { load(n + 1); }, Math.min(10000, 1500 * (n + 1)));
+  });
+}
+load(0);
+</script>
+</body>
+</html>
