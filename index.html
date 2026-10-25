@@ -3,31 +3,78 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Guruhalle Stammtisch – Pokerabend</title>
-<meta name="description" content="Texas Hold'em mit Spielgeld für den Guruhalle-Discord. Link öffnen, Namen eingeben, Platz nehmen.">
-<meta property="og:title" content="Guruhalle Stammtisch – Pokerabend">
-<meta property="og:description" content="No-Limit Hold'em mit Spielgeld: bis zu 12 Leute an einem Tisch, jederzeit einsteigen. To the Moon! 🚀">
+<title>Guruhalle Stammtisch – Poker & Kart</title>
+<meta name="description" content="Pokerabend und Kart-Rennen für den Guruhalle-Discord. Link öffnen, Namen eingeben, loslegen.">
+<meta property="og:title" content="Guruhalle Stammtisch – Poker & Kart">
+<meta property="og:description" content="No-Limit Hold'em mit Spielgeld und Live-Kartrennen mit Krypto-Items. To the Moon! 🚀">
 <meta name="theme-color" content="#0b0907">
-<style>html,body{margin:0;height:100%;background:#0b0907;color:#f5eee2;font:16px system-ui,sans-serif}#l{display:grid;place-items:center;align-content:center;gap:14px;height:100%;text-align:center;padding:16px;box-sizing:border-box}#c{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#ffc56b,#f7931a 55%,#b85f05);color:#fff;font:800 34px/1 system-ui,sans-serif;box-shadow:0 0 28px rgba(247,147,26,.6);animation:s 1.6s ease-in-out infinite}@keyframes s{50%{transform:rotateY(180deg)}}#t{color:#f2b33d;font-weight:700;letter-spacing:.08em;text-transform:uppercase}</style>
+<style>
+html,body{margin:0;height:100%;background:#0b0907;color:#f5eee2;font:15px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+#tabs{position:fixed;left:0;right:0;top:0;height:calc(42px + env(safe-area-inset-top));padding:env(safe-area-inset-top) max(10px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left));box-sizing:border-box;display:flex;align-items:center;gap:8px;background:#0b0907;border-bottom:1px solid #3a2e20;z-index:10}
+.coin{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#ffc56b,#f7931a 55%,#b85f05);color:#fff;font:800 16px/1 system-ui;flex:none;box-shadow:0 0 12px rgba(247,147,26,.45)}
+.name{color:#f2b33d;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:12px;margin-right:6px;white-space:nowrap}
+@media (max-width:520px){.name{display:none}}
+.tab{appearance:none;border:1px solid #3a2e20;background:#15110d;color:#f5eee2;border-radius:10px;padding:6px 14px;font:600 14px system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.tab.on{background:linear-gradient(180deg,#ffb347,#f7931a);border-color:#ffcf86;color:#1a0e00}
+.tab:not(.on):hover{border-color:#f2b33d}
+#frames{position:fixed;left:0;right:0;bottom:0;top:calc(42px + env(safe-area-inset-top))}
+iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:#0b0907}
+iframe.on{display:block}
+body.race #tabs{display:none}
+body.race #frames{top:0}
+</style>
 </head>
 <body>
-<div id="l"><div id="c">₿</div><div id="t">Guruhalle Stammtisch</div><div id="m">Pokertisch wird geladen …</div></div>
+<nav id="tabs">
+  <div class="coin">₿</div><span class="name">Guruhalle Stammtisch</span>
+  <button class="tab" type="button" data-t="poker">♠ Poker</button>
+  <button class="tab" type="button" data-t="rennen">🏎️ Kart-Rennen</button>
+</nav>
+<div id="frames">
+  <iframe id="f-poker" title="Pokerabend" allow="clipboard-write; fullscreen; autoplay"></iframe>
+  <iframe id="f-rennen" title="Guruhalle Kart" allow="clipboard-write; fullscreen; autoplay; gamepad; screen-wake-lock"></iframe>
+</div>
 <script>
-// Lädt den Tisch von Google Apps Script – ohne Google-Anmeldung, daher egal wie viele Konten angemeldet sind
-var API = 'https://script.google.com/macros/s/AKfycbxPyN_HEhryQYB_p7u61YUh6KqOP1G2CabTS5XM0nQbynswcKALsfoGk-dfYokaUnyX/exec';
-function load(n) {
-  fetch(API + '?ui=1', { credentials: 'omit' }).then(function (r) {
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.text();
-  }).then(function (h) {
-    h = h.replace('<head>', '<head><script>window.PK_API=' + JSON.stringify(API) + ';<\/script>');
-    document.open(); document.write(h); document.close();
-  }).catch(function () {
-    document.getElementById('m').textContent = 'Verbindung klappt gerade nicht – neuer Versuch …';
-    setTimeout(function () { load(n + 1); }, Math.min(10000, 1500 * (n + 1)));
+// Zwei Reiter: Poker und Kart. Link mit #rennen öffnet direkt das Rennen, #rennen=raumcode einen privaten Raum.
+(function () {
+  var frames = { poker: document.getElementById('f-poker'), rennen: document.getElementById('f-rennen') };
+  var src = { poker: 'poker.html', rennen: 'rennen.html' };
+  var cur = null;
+  function parseHash() {
+    var h = decodeURIComponent(location.hash.replace(/^#/, ''));
+    var m = h.match(/^(poker|rennen)(?:=([a-z0-9-]{1,24}))?$/i);
+    return m ? { tab: m[1].toLowerCase(), room: m[2] ? m[2].toLowerCase() : '' } : { tab: 'poker', room: '' };
+  }
+  function show(tab, room) {
+    var f = frames[tab];
+    if (!f.getAttribute('src')) f.setAttribute('src', src[tab] + (tab === 'rennen' && room ? '?raum=' + encodeURIComponent(room) : ''));
+    else if (tab === 'rennen' && room && f.contentWindow) f.contentWindow.postMessage({ gk: 'room', room: room }, '*');
+    for (var k in frames) frames[k].classList.toggle('on', k === tab);
+    var bs = document.querySelectorAll('.tab');
+    for (var i = 0; i < bs.length; i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-t') === tab);
+    cur = tab;
+    document.title = tab === 'rennen' ? 'Guruhalle Kart – Stammtisch Grand Prix' : 'Guruhalle Stammtisch – Pokerabend';
+    setTimeout(function () { try { f.focus(); f.contentWindow.focus(); } catch (e) {} }, 50);
+  }
+  function setHash(h) { try { history.replaceState(null, '', location.pathname + location.search + (h ? '#' + h : '')); } catch (e) { location.hash = h; } }
+  var bs = document.querySelectorAll('.tab');
+  for (var i = 0; i < bs.length; i++) bs[i].addEventListener('click', function () {
+    var t = this.getAttribute('data-t');
+    if (t === cur) return;
+    document.body.classList.remove('race');
+    setHash(t === 'poker' ? '' : t);
+    show(t, '');
   });
-}
-load(0);
+  window.addEventListener('hashchange', function () { var p = parseHash(); show(p.tab, p.room); });
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!d || typeof d !== 'object') return;
+    if (e.source !== frames.rennen.contentWindow) return;
+    if (d.gk === 'race') document.body.classList.toggle('race', !!d.on && cur === 'rennen');
+    if (d.gk === 'room' && cur === 'rennen') setHash('rennen' + (d.room && d.room !== 'stammtisch' ? '=' + d.room : ''));
+  });
+  var p = parseHash(); show(p.tab, p.room);
+})();
 </script>
 </body>
 </html>
