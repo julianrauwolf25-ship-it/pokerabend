@@ -22,6 +22,8 @@ iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;ba
 iframe.on{display:block}
 body.race #tabs{display:none}
 body.race #frames{top:0}
+#edge{position:fixed;left:50%;top:0;transform:translateX(-50%);width:120px;height:8px;border-radius:0 0 8px 8px;background:rgba(247,147,26,.35);z-index:11;cursor:pointer;display:none}
+body.race #edge{display:block}#edge:hover{background:rgba(247,147,26,.8);height:12px}
 </style>
 </head>
 <body>
@@ -72,7 +74,13 @@ body.race #frames{top:0}
     if (e.source !== frames.rennen.contentWindow) return;
     if (d.gk === 'race') document.body.classList.toggle('race', !!d.on && cur === 'rennen');
     if (d.gk === 'room' && cur === 'rennen') setHash('rennen' + (d.room && d.room !== 'stammtisch' ? '=' + d.room : ''));
+    // Umschalt-Knopf im Spiel (♠ Zum Pokerabend / 🏎️ Kart): Reiter wechseln, Leiste wieder zeigen
+    if (d.gk === 'tab' && (d.tab === 'poker' || d.tab === 'rennen')) { document.body.classList.remove('race'); setHash(d.tab === 'poker' ? '' : 'rennen'); show(d.tab, ''); }
   });
+  // Sicherheitsnetz: Esc oder Doppelklick oben am Rand holt die Reiter-Leiste zurück, falls sie im Rennen versteckt blieb
+  window.addEventListener('keydown', function (e) { if (e.key === 'Escape') document.body.classList.remove('race'); });
+  var edge = document.createElement('div'); edge.id = 'edge'; edge.title = 'Reiter einblenden'; document.body.appendChild(edge);
+  edge.addEventListener('click', function () { document.body.classList.remove('race'); });
   var p = parseHash(); show(p.tab, p.room);
 })();
 </script>
