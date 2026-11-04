@@ -1,0 +1,1606 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guruhalle MiniGame Center</title>
+<meta name="theme-color" content="#0b0907">
+<style>
+:root{--bg:#0b0907;--panel:#15110d;--panel2:#1d1712;--line:#3a2e20;--txt:#f5eee2;--mut:#b5a690;--org:#f7931a;--gold:#f2b33d;--green:#3ecf8e;--red:#ff5a5a;--blue:#5ab4ff;--purple:#b07cff;--r:14px}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);font:15px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{padding:0 max(12px,env(safe-area-inset-right)) 40px max(12px,env(safe-area-inset-left))}
+button{font:inherit;color:inherit}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--txt);border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer;white-space:nowrap;touch-action:manipulation}
+.btn:hover:not(:disabled){border-color:var(--gold)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.main{background:linear-gradient(180deg,#ffb347,#f7931a);border-color:#ffcf86;color:#1a0e00}
+.btn.green{background:linear-gradient(180deg,#5be3a5,#2bb673);border-color:#8ff0c3;color:#03200f}
+.btn.red{background:linear-gradient(180deg,#ff7b7b,#e04040);border-color:#ffb0b0;color:#2a0000}
+.btn.sm{padding:5px 10px;font-size:13px;border-radius:8px}
+.btn.big{padding:12px 22px;font-size:17px;border-radius:12px}
+.muted{color:var(--mut)}
+h1,h2,h3{margin:0}
+/* Kopf */
+#top{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,var(--bg) 80%,rgba(11,9,7,0));padding:12px 0 10px}
+.hrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;margin-right:auto}
+.logo .gp{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:22px;background:radial-gradient(circle at 35% 30%,#ffc56b,#f7931a 55%,#b85f05);box-shadow:0 0 16px rgba(247,147,26,.4)}
+.logo b{display:block;font-size:18px;letter-spacing:.02em}
+.logo small{color:var(--mut);font-size:12px}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 11px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer;font-size:14px}
+.pill.c{border-color:#7a5a1c;color:var(--gold)}
+.pill.s{color:#ffd166}.pill.p{color:#9fd8ff}
+.pill.bump{animation:bump .5s}
+@keyframes bump{30%{transform:scale(1.18);box-shadow:0 0 14px rgba(242,179,61,.7)}}
+nav.sec{display:flex;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+nav.sec button{appearance:none;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:7px 14px;font-weight:600;cursor:pointer;white-space:nowrap}
+nav.sec button.on{background:linear-gradient(180deg,#ffb347,#f7931a);border-color:#ffcf86;color:#1a0e00}
+/* Galerie */
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0 12px}
+.search{flex:1 1 220px;display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:0 12px}
+.search input{flex:1;background:none;border:0;outline:0;color:var(--txt);padding:10px 0;font:inherit;min-width:0}
+.search:focus-within{border-color:var(--gold)}
+select{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:9px 10px;font:inherit}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-bottom:12px}
+.chip{appearance:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 13px;cursor:pointer;white-space:nowrap;font-size:14px}
+.chip.on{border-color:var(--gold);background:#2a1f10;color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.gc{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,border-color .15s}
+.gc:hover{transform:translateY(-2px);border-color:#6b5230}
+.gc .art{position:relative;height:120px;display:grid;place-items:center;font-size:56px;overflow:hidden;cursor:pointer}
+.gc .art::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0 10px,transparent 10px 20px)}
+.gc .art span{position:relative;z-index:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+.badges{position:absolute;left:8px;top:8px;display:flex;gap:4px;z-index:2}
+.bdg{font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;background:rgba(0,0,0,.55);letter-spacing:.03em}
+.bdg.new{background:var(--green);color:#03200f}.bdg.hot{background:var(--red);color:#fff}
+.gc .body{padding:11px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.gc h3{font-size:16px}
+.gc p{margin:0;color:var(--mut);font-size:13px;flex:1}
+.meta{display:flex;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--mut)}
+.meta span{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.gc .foot{display:flex;align-items:center;gap:8px;margin-top:4px}
+.gc .foot .best{font-size:12px;color:var(--gold);margin-right:auto}
+.empty{text-align:center;padding:40px 10px;color:var(--mut)}
+.banner{display:flex;gap:14px;align-items:center;background:linear-gradient(110deg,#2a1a08,#15110d 60%);border:1px solid #5a4020;border-radius:var(--r);padding:14px 16px;margin-bottom:14px;flex-wrap:wrap}
+.banner .bi{font-size:40px;flex:none!important;min-width:0!important}
+.banner div{flex:1;min-width:200px}
+.banner b{color:var(--gold)}
+.bar{height:6px;background:#2a2219;border-radius:4px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#f7931a,#ffd166)}
+/* Karten-Panels */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.card h2{font-size:14px;letter-spacing:.08em;color:var(--gold);margin-bottom:10px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+/* Shop */
+.shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.si{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;position:relative}
+.si.eq{border-color:var(--green);box-shadow:0 0 0 1px var(--green) inset}
+.si .pv{height:96px;border-radius:9px;display:grid;place-items:center;background:#0f0c09;overflow:hidden}
+.si b{font-size:14px}
+.si small{font-size:12px;color:var(--mut)}
+.rar{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.r1{color:#c9bfae}.r2{color:var(--blue)}.r3{color:var(--purple)}.r4{color:var(--gold)}
+.si.r4{background:linear-gradient(160deg,#2b2111,#1d1712 60%)}
+.deal{position:absolute;right:8px;top:8px;background:var(--red);color:#fff;font-size:11px;font-weight:800;border-radius:6px;padding:2px 6px;z-index:2}
+.cardback{width:58px;height:82px;border-radius:7px;border:2px solid rgba(255,255,255,.85);box-shadow:0 3px 8px rgba(0,0,0,.5)}
+.felt{width:120px;height:70px;border-radius:40px;border:5px solid #5a3b1c;box-shadow:inset 0 0 18px rgba(0,0,0,.6)}
+.frame{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:30px;background:#2a2219}
+.ttl{font-weight:800;padding:5px 10px;border-radius:8px;background:#2a2219;font-size:14px}
+/* Wechselstube */
+.xrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}
+.xrow input[type=range]{flex:1;min-width:140px;accent-color:var(--org)}
+.rate{font-variant-numeric:tabular-nums;font-weight:700}
+.up{color:var(--green)}.dn{color:var(--red)}
+.log{max-height:260px;overflow:auto;font-size:13px}
+.log div{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #241c14}
+.log div span:last-child{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:700}
+.howto li{margin:4px 0}
+code{background:#241c14;border-radius:5px;padding:1px 5px;font-size:12.5px}
+/* Spielansicht */
+#play{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column}
+#play[hidden]{display:none}
+.phead{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 8px max(10px,env(safe-area-inset-left));border-bottom:1px solid var(--line);background:var(--panel)}
+.phead .t{font-weight:800;margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.phead .t small{font-weight:600;color:var(--gold);margin-left:8px}
+#stage{flex:1;position:relative;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:14px max(10px,env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))}
+#stage .gm{width:100%;max-width:760px;margin:0 auto}
+.hud{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.hud span{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:5px 12px;font-weight:700;font-variant-numeric:tabular-nums}
+.center{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.rowc{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.msg{min-height:26px;font-weight:700;text-align:center}
+.over{position:fixed;inset:0;display:grid;place-items:center;background:rgba(11,9,7,.78);z-index:30;padding:16px;animation:tin2 .25s}@keyframes tin2{from{opacity:0}}
+.over .box{background:var(--panel);border:1px solid #6b5230;border-radius:16px;padding:20px 22px;text-align:center;max-width:360px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+.over h2{font-size:24px;margin-bottom:6px}
+.over .gain{font-size:22px;color:var(--gold);font-weight:800;margin:8px 0 14px}
+/* Spielkarten */
+.pc{width:72px;height:104px;border-radius:9px;background:#fbf7ee;color:#1b1b1b;display:flex;flex-direction:column;justify-content:space-between;padding:5px 7px;font-weight:800;box-shadow:0 4px 10px rgba(0,0,0,.45);position:relative;flex:none;user-select:none}
+.pc.red{color:#d42a2a}
+.pc .c{font-size:30px;align-self:center;line-height:1}
+.pc .r{font-size:18px;line-height:1}
+.pc .rb{transform:rotate(180deg)}
+.pc.big{width:110px;height:158px;border-radius:12px;padding:8px 10px}
+.pc.big .c{font-size:52px}.pc.big .r{font-size:26px}
+.pc.sm{width:46px;height:66px;padding:3px 5px;border-radius:6px}
+.pc.sm .c{font-size:19px}.pc.sm .r{font-size:13px}
+.pc.back{background:var(--cb,#7a1f1f);border:3px solid #fbf7ee}
+.pc.deal{animation:dealIn .3s ease-out}
+@keyframes dealIn{from{transform:translateY(-30px) rotate(-8deg);opacity:0}}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#241a0e;border:1px solid var(--gold);color:var(--txt);padding:9px 16px;border-radius:12px;z-index:50;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.6);max-width:92vw;text-align:center;animation:tin .25s}
+@keyframes tin{from{transform:translate(-50%,20px);opacity:0}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:grid;place-items:center;z-index:40;padding:16px}
+.modal .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;max-width:440px;width:100%;max-height:85vh;overflow:auto}
+canvas{touch-action:none;display:block}
+@media (max-width:560px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .gc .art{height:92px;font-size:44px}
+  .gc p{font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .gc h3{font-size:14.5px}
+  .gc .foot{flex-wrap:wrap}.gc .foot .btn{width:100%}
+  .logo small{display:none}
+  .pc{width:58px;height:84px}.pc .c{font-size:24px}
+  .pc.big{width:92px;height:132px}.pc.big .c{font-size:44px}
+  .shopgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .phead .t small{display:none}
+  #top{position:static}
+  .banner{padding:10px 12px;gap:10px}.banner .bi{display:none}.banner div{min-width:0;flex:1 1 55%;font-size:13.5px}
+}
+</style>
+</head>
+<body>
+<header id="top">
+  <div class="hrow">
+    <div class="logo"><div class="gp">🎮</div><div><b>MiniGame Center</b><small>Guruhalle Stammtisch · Zocken, Coins sammeln, Skins holen</small></div></div>
+    <div class="pills" id="pills"></div>
+  </div>
+  <nav class="sec" id="secnav">
+    <button type="button" data-s="games" class="on">🕹️ Spiele</button>
+    <button type="button" data-s="shop">🛍️ Skin-Shop</button>
+    <button type="button" data-s="board">🏆 Bestenliste</button>
+    <button type="button" data-s="bank">💱 Wechselstube</button>
+    <button type="button" data-s="me">👤 Konto</button>
+  </nav>
+</header>
+<main id="main"></main>
+<section id="play" hidden>
+  <div class="phead">
+    <button class="btn sm" id="backBtn" type="button" title="Zurück zur Galerie (Esc)">← Galerie</button>
+    <div class="t" id="pTitle"></div>
+    <span class="pill c" id="pCoins"></span>
+    <button class="btn sm" id="helpBtn" type="button" title="Spielregeln">?</button>
+    <button class="btn sm" id="restartBtn" type="button" title="Neu starten">⟳</button>
+  </div>
+  <div id="stage"></div>
+</section>
+<script>
+// ================================================================
+// GuruCore – gemeinsame Regeln für Browser UND Konto-Server (Apps Script)
+// Ohne DOM, ohne Module: wird in minigames.html und in Konten.gs eingebaut.
+// Die Geldbörse ändert sich nur über applyOp(): der Browser rechnet sofort (flüssig),
+// der Server rechnet dieselbe Operation nach und hat das letzte Wort.
+// ================================================================
+var GuruCore = (function () {
+  var DAY_CAP = 600;                               // max. 🪙 pro Tag aus MiniGames
+  var CRED_CAP = { sats: 1000, chips: 50000 };     // max. ⚡/♠ pro Tag aus Kart/Poker (je ≈ 500 🪙)
+  var CRED_MSG = { sats: 500, chips: 100000 };     // max. pro einzelner Gutschrift
+  var REWARD_MAX = 200;                            // max. 🪙 pro einzelner Belohnung
+  var LOW_GAMES = { memory: true };                // Rekord = kleinster Wert
+  var BASE = { sats: 0.5, chips: 0.01 };           // 2 ⚡ = 1 🪙 · 100 ♠ = 1 🪙 (Grundkurs, täglich ±15 %)
+  // [id, Platz, Name, Preis, Seltenheit]
+  var SKIN_DATA = [
+    ['k_orange', 'kart', 'Orange Pill', 120, 1], ['k_laser', 'kart', 'Laser Eyes', 260, 2], ['k_diamond', 'kart', 'Diamond Hands', 480, 3],
+    ['k_bear', 'kart', 'Bärenmarkt', 200, 2], ['k_lambo', 'kart', 'Wen Lambo (Gold)', 900, 4], ['k_moon', 'kart', 'Moon-Chrome', 650, 3],
+    ['b_green', 'boost', 'Grüne Kerze', 150, 2], ['b_plasma', 'boost', 'Lila Plasma', 320, 3], ['b_rainbow', 'boost', 'Bullrun-Regenbogen', 700, 4],
+    ['c_classic', 'cards', 'Stammtisch Klassik', 80, 1], ['c_btc', 'cards', 'Bitcoin-Netz', 220, 2], ['c_candle', 'cards', 'Candlestick', 300, 3], ['c_gold', 'cards', 'Guru-Gold', 800, 4],
+    ['f_green', 'felt', 'Grün Klassik', 100, 1], ['f_red', 'felt', 'Bärenrot', 240, 2], ['f_night', 'felt', 'Mitternachts-Chart', 380, 3], ['f_orange', 'felt', 'Orange Pill Lounge', 750, 4],
+    ['fr_bull', 'frame', 'Bullen-Rahmen', 150, 2], ['fr_whale', 'frame', 'Wal-Rahmen', 420, 3], ['fr_rocket', 'frame', 'To-the-Moon-Rahmen', 850, 4],
+    ['t_paper', 'title', '„Paperhands“', 30, 1], ['t_hodl', 'title', '„HODLer“', 120, 2], ['t_guru', 'title', '„Chart-Guru“', 400, 3], ['t_satoshi', 'title', '„Satoshis Erbe“', 1500, 4],
+  ];
+  var SKIN_BY = {};
+  SKIN_DATA.forEach(function (s) { SKIN_BY[s[0]] = { id: s[0], slot: s[1], name: s[2], price: s[3], rar: s[4] }; });
+
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function today(d) { d = d || new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function hashStr(s) { var x = 2166136261; for (var i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619); } return x >>> 0; }
+  function seeded(seed) { var s = seed >>> 0; return function () { s = (s + 0x6D2B79F5) >>> 0; var t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function rate(cur, date) { return BASE[cur] * (0.85 + seeded(hashStr(cur + today(date)))() * 0.3); }
+  function dailyDeal(date) { return SKIN_DATA[Math.floor(seeded(hashStr('deal' + today(date)))() * SKIN_DATA.length)][0]; }
+  function priceOf(id, date) { var s = SKIN_BY[id]; if (!s) return null; return id === dailyDeal(date) ? Math.round(s.price * 0.7) : s.price; }
+  function num(x) { x = Math.round(Number(x)); return isFinite(x) ? x : 0; }
+  function txt(s, n) { return String(s == null ? '' : s).replace(/[<>]/g, '').slice(0, n || 60); }
+  function gid(g) { g = String(g || ''); return /^[a-z0-9_]{2,20}$/.test(g) ? g : ''; }
+
+  function blank(now) {
+    now = now || Date.now();
+    return { v: 1, coins: 100, sats: 0, chips: 0, owned: {}, equip: {}, log: [{ t: now, cur: 'coins', n: 100, why: 'Willkommensbonus 🎁' }],
+      day: today(new Date(now)), dayEarn: 0, dayCred: { sats: 0, chips: 0 }, bet: 0, hs: {}, plays: {}, stats: { games: 0, earned: 100 }, spin: '', seen: [] };
+  }
+  // fehlende Felder ergänzen, Tageszähler um Mitternacht zurücksetzen
+  function normalize(d, now) {
+    now = now || Date.now();
+    var b = blank(now);
+    if (!d || typeof d !== 'object' || d.v !== 1) return b;
+    for (var k in b) if (d[k] === undefined || d[k] === null) d[k] = b[k];
+    var t = today(new Date(now));
+    if (d.day !== t) { d.day = t; d.dayEarn = 0; d.dayCred = { sats: 0, chips: 0 }; d.bet = 0; }
+    return d;
+  }
+  function log(d, cur, n, why, now) { d.log.unshift({ t: now, cur: cur, n: n, why: txt(why) }); if (d.log.length > 40) d.log.length = 40; }
+
+  // Eine Operation anwenden. Rückgabe {ok, err?, got?}. Jede Operation hat eine id → doppelt gesendete zählen nur einmal.
+  function applyOp(d, op, now) {
+    now = now || Date.now();
+    if (!op || typeof op !== 'object') return { ok: false, err: 'kaputt' };
+    normalize(d, now);
+    if (op.id && d.seen.indexOf(op.id) >= 0) return { ok: true, dup: true };
+    var r = apply_(d, op, now, new Date(now));
+    if (r.ok && op.id) { d.seen.push(String(op.id).slice(0, 24)); if (d.seen.length > 150) d.seen.splice(0, d.seen.length - 150); }
+    return r;
+  }
+  function apply_(d, op, now, date) {
+    var n = num(op.n), g = gid(op.g);
+    switch (op.op) {
+      case 'reward': { // MiniGame-Gewinn
+        n = Math.max(0, Math.min(REWARD_MAX, n));
+        var got = Math.min(n, Math.max(0, DAY_CAP - d.dayEarn));
+        if (!n) return { ok: true, got: 0 };
+        if (!got) return { ok: true, got: 0, err: 'limit' };
+        d.coins += got; d.dayEarn += got; d.stats.earned += got; log(d, 'coins', got, op.why, now);
+        return { ok: true, got: got };
+      }
+      case 'spend': { // Coins ausgeben (Einsatz, Glücksrad); bet: 'new' | 'add' merkt den offenen Einsatz
+        if (n <= 0 || d.coins < n) return { ok: false, err: 'zu wenig' };
+        d.coins -= n; log(d, 'coins', -n, op.why, now);
+        if (op.bet === 'new') d.bet = n; else if (op.bet === 'add') d.bet += n;
+        return { ok: true };
+      }
+      case 'refund': { // Einsatz zurück – höchstens der offene Einsatz
+        n = Math.max(0, Math.min(n, d.bet)); d.bet = 0;
+        if (n) { d.coins += n; log(d, 'coins', n, op.why || 'Einsatz zurück', now); }
+        return { ok: true, got: n };
+      }
+      case 'credit': { // ⚡ aus dem Kart / ♠ aus dem Poker
+        var cur = op.cur; if (!CRED_CAP[cur]) return { ok: false, err: 'währung' };
+        n = Math.max(0, Math.min(CRED_MSG[cur], n));
+        var c = Math.min(n, Math.max(0, CRED_CAP[cur] - (d.dayCred[cur] || 0)));
+        if (!c) return { ok: true, got: 0, err: n ? 'limit' : undefined };
+        d[cur] += c; d.dayCred[cur] = (d.dayCred[cur] || 0) + c; log(d, cur, c, op.why || 'Gutschrift', now);
+        return { ok: true, got: c };
+      }
+      case 'exchange': {
+        var cu = op.cur; if (!BASE[cu]) return { ok: false, err: 'währung' };
+        n = Math.min(n, d[cu]); var rt = rate(cu, date), out = Math.floor(n * rt);
+        if (n <= 0 || out <= 0) return { ok: false, err: 'zu wenig' };
+        var used = Math.min(n, Math.ceil(out / rt - 1e-9));
+        d[cu] -= used; d.coins += out;
+        log(d, cu, -used, 'Getauscht in ' + out + ' 🪙', now); log(d, 'coins', out, 'Wechselstube', now);
+        return { ok: true, got: out };
+      }
+      case 'buy': {
+        var s = SKIN_BY[op.sid]; if (!s) return { ok: false, err: 'unbekannt' };
+        if (d.owned[s.id]) return { ok: false, err: 'schon da' };
+        var p = priceOf(s.id, date); if (d.coins < p) return { ok: false, err: 'zu wenig' };
+        d.coins -= p; d.owned[s.id] = now; d.equip[s.slot] = s.id; log(d, 'coins', -p, 'Skin: ' + s.name, now);
+        return { ok: true };
+      }
+      case 'equip': {
+        var slot = String(op.slot || '');
+        if (!op.sid) { delete d.equip[slot]; return { ok: true }; }
+        var sk = SKIN_BY[op.sid]; if (!sk || !d.owned[sk.id] || sk.slot !== slot) return { ok: false, err: 'nicht deins' };
+        d.equip[slot] = sk.id; return { ok: true };
+      }
+      case 'score': {
+        var v = Number(op.v); if (!g || !isFinite(v) || v < 0 || v > 1e7) return { ok: false, err: 'wert' };
+        var cur2 = d.hs[g], better = cur2 === undefined || (LOW_GAMES[g] ? v < cur2 : v > cur2);
+        if (better) d.hs[g] = v;
+        return { ok: true, better: better };
+      }
+      case 'played': { if (!g) return { ok: false, err: 'spiel' }; d.plays[g] = (d.plays[g] || 0) + 1; d.stats.games++; return { ok: true }; }
+      case 'spin': { var t = today(date); if (d.spin === t) return { ok: false, err: 'schon gedreht' }; d.spin = t; return { ok: true }; }
+      case 'wipe': { var seen = d.seen, nb = blank(now); for (var k in d) delete d[k]; for (var k2 in nb) d[k2] = nb[k2]; d.seen = seen; return { ok: true }; }
+    }
+    return { ok: false, err: 'unbekannte Operation' };
+  }
+  // Gast-Fortschritt beim Registrieren übernehmen (gedeckelt – der Browser-Speicher ist nicht vertrauenswürdig)
+  function importGuest(d, g, now) {
+    if (!g || typeof g !== 'object') return d;
+    d.coins = Math.max(d.coins, Math.min(1500, Math.max(0, num(g.coins))));
+    d.sats = Math.min(1500, Math.max(0, num(g.sats))); d.chips = Math.min(150000, Math.max(0, num(g.chips)));
+    if (g.owned && typeof g.owned === 'object') for (var id in g.owned) if (SKIN_BY[id]) d.owned[id] = now;
+    if (g.equip && typeof g.equip === 'object') for (var sl in g.equip) { var s = SKIN_BY[g.equip[sl]]; if (s && s.slot === sl && d.owned[s.id]) d.equip[sl] = s.id; }
+    if (g.hs && typeof g.hs === 'object') for (var k in g.hs) { var gg = gid(k), v = Number(g.hs[k]); if (gg && isFinite(v) && v >= 0 && v <= 1e7) d.hs[gg] = v; }
+    if (g.plays && typeof g.plays === 'object') for (var p in g.plays) { var gp = gid(p); if (gp) d.plays[gp] = Math.max(0, Math.min(1e5, num(g.plays[p]))); }
+    log(d, 'coins', 0, 'Gast-Fortschritt übernommen', now);
+    return d;
+  }
+  return { DAY_CAP: DAY_CAP, CRED_CAP: CRED_CAP, LOW_GAMES: LOW_GAMES, SKIN_DATA: SKIN_DATA, SKIN_BY: SKIN_BY,
+    today: today, hashStr: hashStr, seeded: seeded, rate: rate, dailyDeal: dailyDeal, priceOf: priceOf,
+    blank: blank, normalize: normalize, applyOp: applyOp, importGuest: importGuest };
+})();
+
+'use strict';
+// ================================================================
+// Guruhalle MiniGame Center – Kern
+// Wallet (gemeinsam mit Kart/Poker über localStorage, gleicher Ursprung),
+// Skin-Katalog, GameRegistry und die API, die jedes MiniGame bekommt.
+// ================================================================
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = (n) => Math.round(n || 0).toLocaleString('de-DE');
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const today = (d = new Date()) => GuruCore.today(d);
+const PARAMS = new URLSearchParams(location.search);
+function h(html) { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; }
+const hashStr = GuruCore.hashStr, seeded = GuruCore.seeded;
+function toast(msg, ms = 2600) {
+  const t = h(`<div class="toast">${msg}</div>`); document.body.appendChild(t);
+  setTimeout(() => t.remove(), ms);
+}
+function playerName() {
+  try {
+    for (const k of ['gk.name', 'pokerabend.name']) { const v = JSON.parse(localStorage.getItem(k) || 'null'); if (v && typeof v === 'string') return v; }
+  } catch (e) { /* egal */ }
+  return 'Gast';
+}
+
+// ---------- Sound (kleine Web-Audio-Töne, kein Download) ----------
+const Sound = {
+  ctx: null, on: true,
+  init() { if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.on = false; } } if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); },
+  tone(f, d = 0.08, type = 'square', vol = 0.06, slide = 0) {
+    if (!this.on || !this.ctx) return;
+    const c = this.ctx, o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
+    o.type = type; o.frequency.setValueAtTime(f, t); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(40, f + slide), t + d);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(g).connect(c.destination); o.start(t); o.stop(t + d + 0.02);
+  },
+  fx(k) {
+    const T = (f, d, ty, v, s, w = 0) => setTimeout(() => this.tone(f, d, ty, v, s), w);
+    switch (k) {
+      case 'click': T(660, 0.04, 'square', 0.03); break;
+      case 'flip': T(900, 0.05, 'triangle', 0.05, -300); break;
+      case 'good': T(660, 0.08, 'triangle', 0.07); T(990, 0.12, 'triangle', 0.07, 0, 70); break;
+      case 'bad': T(220, 0.2, 'sawtooth', 0.05, -120); break;
+      case 'coin': T(1320, 0.06, 'square', 0.04); T(1760, 0.1, 'square', 0.04, 0, 60); break;
+      case 'win': [523, 659, 784, 1047].forEach((f, i) => T(f, 0.14, 'triangle', 0.07, 0, i * 90)); break;
+      case 'lose': [392, 330, 262].forEach((f, i) => T(f, 0.18, 'sawtooth', 0.04, 0, i * 120)); break;
+      case 'dice': for (let i = 0; i < 5; i++) T(300 + Math.random() * 500, 0.03, 'square', 0.03, 0, i * 35); break;
+      case 'tick': T(1200, 0.02, 'square', 0.02); break;
+      case 'drop': T(500, 0.1, 'triangle', 0.06, -250); break;
+    }
+  },
+};
+window.addEventListener('pointerdown', () => Sound.init(), { once: true });
+
+// ---------- Wallet ----------
+// Datensatz im localStorage unter `guru.wallet` – lesbar für Kart (rennen.html), Poker (poker.html) und die Hauptseite,
+// weil alle Seiten auf julianrauwolf25-ship-it.github.io liegen. Mit Konto ist das die Kopie vom Server (Server hat das letzte Wort).
+//   coins 🪙 Guru-Coins · sats ⚡ aus dem Kart · chips ♠ aus dem Poker · owned/equip Skins · hs Rekorde
+// Änderungen laufen IMMER über Wallet.op({op:…}) → GuruCore.applyOp (gleiche Regeln wie auf dem Server).
+const WKEY = 'guru.wallet', GKEY = 'guru.wallet.guest', QKEY = 'guru.queue', SKEY = 'guru.session';
+const DAY_CAP = GuruCore.DAY_CAP;
+const CUR = { coins: { sym: '🪙', name: 'Guru-Coins' }, sats: { sym: '⚡', name: 'Sats (Kart)' }, chips: { sym: '♠', name: 'Poker-Chips' } };
+const ls = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* voll/privat */ } },
+};
+const opId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const Wallet = {
+  d: null, subs: [],
+  blank: () => GuruCore.blank(),
+  load() { this.d = GuruCore.normalize(ls.get(WKEY, null)); return this.d; },
+  save() { ls.set(WKEY, this.d); this.emit(); },
+  emit() { for (const f of this.subs) try { f(this.d); } catch (e) { console.error(e); } },
+  on(f) { this.subs.push(f); },
+  // Operation sofort anwenden; mit Konto zusätzlich in die Warteschlange zum Server
+  op(o) {
+    this.load(); o.id = o.id || opId();
+    const r = GuruCore.applyOp(this.d, o);
+    if (r.ok && !r.dup) { this.save(); if (Account.on) Account.enqueue(o); }
+    return r;
+  },
+  earn(n, why) {
+    const r = this.op({ op: 'reward', n: Math.round(n), why });
+    if (r.err === 'limit') toast('Tageslimit von ' + DAY_CAP + ' 🪙 erreicht – morgen geht\'s weiter (Tauschen geht immer).');
+    return r.got || 0;
+  },
+  credit(cur, n, why) { return this.op({ op: 'credit', cur, n, why }).got || 0; },
+  spend(cur, n, why, bet) { return cur === 'coins' && this.op({ op: 'spend', n: Math.round(n), why, bet }).ok; },
+};
+Wallet.load();
+window.addEventListener('storage', (e) => { if (e.key === WKEY) { Wallet.load(); Wallet.emit(); } if (e.key === SKEY) { Account.s = ls.get(SKEY, null); Wallet.load(); Wallet.emit(); } });
+
+// ---------- Konto (Server: Apps Script „Guruhalle Konten“) ----------
+// Adresse der Web-App (/exec). Leer = Konten noch nicht freigeschaltet (alles läuft als Gast im Browser).
+const KONTEN_API = 'https://script.google.com/macros/s/AKfycbycunem1yHAKT4T2K7FmHiDB5RdAX-jYsAV0-g93833T-Lduz_RzLWsAa3gDu9iscGGJg/exec';
+const Account = {
+  api: (() => { const p = PARAMS.get('api'); return p && /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? p : KONTEN_API; })(),
+  s: ls.get(SKEY, null), // {token, name, email, api}
+  busy: false, timer: 0,
+  get ready() { return !!this.api; },
+  get on() { return !!(this.api && this.s && this.s.token); },
+  async call(a, body = {}, ms = 15000) {
+    if (!this.api) throw new Error('Konten sind noch nicht freigeschaltet.');
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms);
+    try {
+      const r = await fetch(this.api, { method: 'POST', body: JSON.stringify(Object.assign({ a }, body)), credentials: 'omit', redirect: 'follow', signal: ctl.signal });
+      return await r.json();
+    } catch (e) { throw new Error('Keine Verbindung zum Konto-Server – bitte gleich nochmal versuchen.'); } finally { clearTimeout(t); }
+  },
+  setSession(r) {
+    this.s = { token: r.token, name: r.user.name, email: r.user.email || '', api: this.api };
+    ls.set(SKEY, this.s); ls.set(QKEY, []);
+    Wallet.d = GuruCore.normalize(r.wallet); Wallet.save();
+  },
+  stashGuest() { if (!ls.get(GKEY, null)) ls.set(GKEY, Wallet.load()); },
+  async register(name, pw, email) {
+    const guest = Wallet.load();
+    const r = await this.call('register', { name, pw, email, guest: { coins: guest.coins, sats: guest.sats, chips: guest.chips, owned: guest.owned, equip: guest.equip, hs: guest.hs, plays: guest.plays } });
+    if (r.ok) { this.stashGuest(); this.setSession(r); }
+    return r;
+  },
+  async login(id, pw) { const r = await this.call('login', { id, pw }); if (r.ok) { this.stashGuest(); this.setSession(r); } return r; },
+  async logout() {
+    try { await this.flush(); } catch (e) { /* egal */ }
+    const tok = this.s && this.s.token; this.s = null; ls.set(SKEY, null); ls.set(QKEY, []);
+    if (tok) this.call('logout', { token: tok }).catch(() => {});
+    Wallet.d = GuruCore.normalize(ls.get(GKEY, null)); ls.set(GKEY, null); Wallet.save();
+  },
+  lost(msg) { toast(msg || 'Du wurdest abgemeldet – bitte neu einloggen.'); this.s = null; ls.set(SKEY, null); ls.set(QKEY, []); Wallet.d = GuruCore.normalize(ls.get(GKEY, null)); ls.set(GKEY, null); Wallet.save(); },
+  async refresh() {
+    if (!this.on) return;
+    try { await this.flush(); const r = await this.call('me', { token: this.s.token }); if (r.ok) this.adopt(r); else if (r.err === 'token') this.lost(); } catch (e) { /* offline – später */ }
+  },
+  // Server-Stand übernehmen und noch nicht gesendete Operationen obendrauf rechnen
+  adopt(r) {
+    if (!r.wallet) return;
+    const d = GuruCore.normalize(r.wallet);
+    for (const o of ls.get(QKEY, [])) GuruCore.applyOp(d, o);
+    Wallet.d = d; if (r.user) { this.s.name = r.user.name; this.s.email = r.user.email || ''; ls.set(SKEY, this.s); }
+    Wallet.save();
+  },
+  enqueue(o) { const q = ls.get(QKEY, []); q.push(o); ls.set(QKEY, q.slice(-200)); clearTimeout(this.timer); this.timer = setTimeout(() => this.flush().catch(() => {}), 400); },
+  async flush() {
+    if (!this.on || this.busy) return;
+    const q = ls.get(QKEY, []); if (!q.length) return;
+    this.busy = true;
+    try {
+      const batch = q.slice(0, 40), r = await this.call('ops', { token: this.s.token, ops: batch });
+      if (!r.ok) { if (r.err === 'token') this.lost(); return; }
+      const sent = new Set(batch.map((o) => o.id)); ls.set(QKEY, ls.get(QKEY, []).filter((o) => !sent.has(o.id)));
+      this.adopt(r);
+    } finally { this.busy = false; }
+    if (ls.get(QKEY, []).length) setTimeout(() => this.flush().catch(() => {}), 300);
+  },
+};
+setInterval(() => Account.flush().catch(() => {}), 20000);
+window.addEventListener('focus', () => Account.refresh());
+window.addEventListener('online', () => Account.flush().catch(() => {}));
+
+// ---------- Wechselkurse (täglich anders, wie ein kleiner Krypto-Chart) ----------
+const Rates = {
+  of: (cur, date = new Date()) => GuruCore.rate(cur, date),
+  week(cur) { const out = []; for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); out.push(this.of(cur, d)); } return out; },
+};
+
+// ---------- Skin-Katalog (Preise/Namen aus GuruCore, hier nur das Aussehen) ----------
+const RAR = { 1: 'Gewöhnlich', 2: 'Selten', 3: 'Episch', 4: 'Legendär' };
+const SLOTS = { kart: '🏎️ Kart-Lackierung', boost: '🔥 Boost-Flamme', cards: '🂠 Kartenrücken', felt: '🟩 Pokertisch', frame: '🖼️ Profilrahmen', title: '🏷️ Titel' };
+const kartSvg = (a, b, stripe = '#fff') => `<svg viewBox="0 0 120 70" width="120" height="70"><ellipse cx="60" cy="62" rx="48" ry="6" fill="rgba(0,0,0,.45)"/><rect x="14" y="40" width="20" height="18" rx="5" fill="#222"/><rect x="86" y="40" width="20" height="18" rx="5" fill="#222"/><path d="M20 44 Q22 26 44 24 L80 24 Q100 26 102 44 L100 52 L22 52 Z" fill="url(#g${hashStr(a + b)})"/><defs><linearGradient id="g${hashStr(a + b)}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect x="56" y="24" width="8" height="28" fill="${stripe}" opacity=".85"/><circle cx="60" cy="20" r="9" fill="#ffd9b0" stroke="#222" stroke-width="2"/><rect x="48" y="12" width="24" height="7" rx="3" fill="${a}"/></svg>`;
+const flameSvg = (a, b) => `<svg viewBox="0 0 120 70" width="120" height="70"><path d="M10 35 Q40 10 70 30 Q95 20 112 35 Q95 50 70 40 Q40 60 10 35Z" fill="${a}"/><path d="M30 35 Q50 24 70 33 Q88 28 100 35 Q88 42 70 37 Q50 46 30 35Z" fill="${b}"/></svg>`;
+const SKINS = [
+  // Kart
+  { id: 'k_orange', pv: () => kartSvg('#ffb347', '#d96d00') },
+  { id: 'k_laser', pv: () => kartSvg('#ff4d4d', '#7a0000', '#ffea00') },
+  { id: 'k_diamond', pv: () => kartSvg('#9ff3ff', '#2a7bd8', '#ffffff') },
+  { id: 'k_bear', pv: () => kartSvg('#8a8a8a', '#3a1010', '#ff5a5a') },
+  { id: 'k_lambo', pv: () => kartSvg('#fff1a8', '#c89200', '#7a4b00') },
+  { id: 'k_moon', pv: () => kartSvg('#f0f0ff', '#7b7ba8', '#b07cff') },
+  // Boost
+  { id: 'b_green', pv: () => flameSvg('#2bb673', '#b6ffd9') },
+  { id: 'b_plasma', pv: () => flameSvg('#7b2cff', '#e3c6ff') },
+  { id: 'b_rainbow', pv: () => `<svg viewBox="0 0 120 70" width="120" height="70"><defs><linearGradient id="rb" x1="0" x2="1"><stop offset="0" stop-color="#ff4d4d"/><stop offset=".3" stop-color="#ffd166"/><stop offset=".6" stop-color="#3ecf8e"/><stop offset="1" stop-color="#5ab4ff"/></linearGradient></defs><path d="M10 35 Q40 10 70 30 Q95 20 112 35 Q95 50 70 40 Q40 60 10 35Z" fill="url(#rb)"/></svg>` },
+  // Kartenrücken (Poker + Karten-MiniGames)
+  { id: 'c_classic', bg: 'repeating-linear-gradient(45deg,#7a1f1f 0 6px,#962a2a 6px 12px)' },
+  { id: 'c_btc', bg: 'radial-gradient(circle at 50% 50%,#ffb347 0 14px,transparent 15px),repeating-radial-gradient(circle,#f7931a 0 3px,#b85f05 3px 7px)' },
+  { id: 'c_candle', bg: 'repeating-linear-gradient(90deg,#0d2a1c 0 7px,#3ecf8e 7px 10px,#0d2a1c 10px 17px,#ff5a5a 17px 20px)' },
+  { id: 'c_gold', bg: 'linear-gradient(135deg,#fff1a8,#c89200 45%,#fff1a8 55%,#8a6100)' },
+  // Tischfilz
+  { id: 'f_green', bg: 'radial-gradient(#1f7a4a,#0d3d24)' },
+  { id: 'f_red', bg: 'radial-gradient(#9b2525,#3d0d0d)' },
+  { id: 'f_night', bg: 'linear-gradient(160deg,transparent 45%,rgba(62,207,142,.5) 46%,transparent 48%),radial-gradient(#1b2b5a,#070b1d)' },
+  { id: 'f_orange', bg: 'radial-gradient(#f7931a,#5a2a00)' },
+  // Profil
+  { id: 'fr_bull', icon: '🐂', ring: '#3ecf8e' },
+  { id: 'fr_whale', icon: '🐋', ring: '#5ab4ff' },
+  { id: 'fr_rocket', icon: '🚀', ring: '#f2b33d' },
+  { id: 't_paper', txt: '🧻 Paperhands' },
+  { id: 't_hodl', txt: '💎 HODLer' },
+  { id: 't_guru', txt: '📈 Chart-Guru' },
+  { id: 't_satoshi', txt: '₿ Satoshis Erbe' },
+];
+for (const s of SKINS) Object.assign(s, GuruCore.SKIN_BY[s.id]);
+const SKIN = Object.fromEntries(SKINS.map((s) => [s.id, s]));
+function skinPreview(s) {
+  if (s.pv) return s.pv();
+  if (s.slot === 'cards') return `<div class="cardback" style="background:${s.bg}"></div>`;
+  if (s.slot === 'felt') return `<div class="felt" style="background:${s.bg}"></div>`;
+  if (s.slot === 'frame') return `<div class="frame" style="box-shadow:0 0 0 4px ${s.ring},0 0 18px ${s.ring}">${s.icon}</div>`;
+  if (s.slot === 'title') return `<div class="ttl r${s.rar}">${esc(s.txt)}</div>`;
+  return '';
+}
+const dailyDeal = () => GuruCore.dailyDeal(new Date());
+const priceOf = (s) => GuruCore.priceOf(s.id, new Date());
+// Kartenrücken für die Karten-MiniGames (angelegter Skin oder Standard)
+function cardBack() { const s = SKIN[Wallet.d.equip.cards]; return s ? s.bg : 'repeating-linear-gradient(45deg,#3a2e20 0 6px,#4a3a28 6px 12px)'; }
+
+// ---------- GameRegistry ----------
+// Ein neues Spiel = eine Datei in src/games/, die MG.register({...}) aufruft. Felder:
+//   id, title, icon (Emoji), bg ([Farbe1, Farbe2]), cat (CATS-Schlüssel), players ('1' | '2' | '1–2'),
+//   desc (kurz), help (HTML), added ('JJJJ-MM-TT'), pop (Grundbeliebtheit 0–100), tags ['...'],
+//   best: 'high' | 'low' | null (wie Highscores verglichen werden), unit ('Punkte' …),
+//   mount(root, api) – baut das Spiel in root auf. Aufräumen läuft automatisch über api.* (Timer, Listener, raf).
+const CATS = { all: '✨ Alle', geschick: '🎯 Geschicklichkeit', karten: '🃏 Karten-Quickies', wuerfel: '🎲 Würfelspiele', strategie: '♟️ Strategie', casual: '☕ Casual' };
+const MG = {
+  games: [], byId: {},
+  register(def) {
+    if (!def || !def.id || this.byId[def.id]) { console.warn('MG.register: ungültig/doppelt', def && def.id); return; }
+    const g = Object.assign({ players: '1', pop: 50, tags: [], best: 'high', unit: 'Punkte', bg: ['#3a2e20', '#15110d'], help: '' }, def);
+    this.games.push(g); this.byId[g.id] = g;
+  },
+  plays(id) { return (Wallet.d.plays[id] || 0); },
+  isNew(g) { return (Date.now() - new Date(g.added).getTime()) < 14 * 864e5; },
+};
+
+// API für ein laufendes Spiel. Alles, was hierüber angemeldet wird, räumt close() wieder ab.
+function makeApi(g, root, hooks) {
+  const cleans = [];
+  let alive = true;
+  const api = {
+    root, game: g, name: playerName(),
+    get alive() { return alive; },
+    // Belohnung: Coins gutschreiben (Tageslimit) – zeigt Toast + Animation
+    reward(n, why) { const got = Wallet.earn(n, why || g.title); if (got) { Sound.fx('coin'); hooks.bump(); } return got; },
+    spend(n, why, bet) { const ok = Wallet.spend('coins', n, why || g.title, bet); if (ok) hooks.bump(); return ok; },
+    // Einsatz zurückgeben (zählt nicht zum Tageslimit) – z. B. bei Unentschieden oder als Teil eines Gewinns
+    refund(n, why) { const got = Wallet.op({ op: 'refund', n: Math.round(n), why: why || 'Einsatz zurück' }).got || 0; if (got) hooks.bump(); return got; },
+    coins() { return Wallet.d.coins; },
+    // Highscore melden → true, wenn neuer Rekord
+    score(v) { const r = Wallet.op({ op: 'score', g: g.id, v }); if (r.better) hooks.title(); return !!r.better; },
+    best() { return Wallet.d.hs[g.id]; },
+    played() { Wallet.op({ op: 'played', g: g.id }); },
+    sfx: (k) => Sound.fx(k), toast,
+    timeout(f, ms) { const id = setTimeout(() => alive && f(), ms); cleans.push(() => clearTimeout(id)); return id; },
+    interval(f, ms) { const id = setInterval(() => alive && f(), ms); cleans.push(() => clearInterval(id)); return id; },
+    raf(f) { let id = 0, last = performance.now(); const loop = (t) => { if (!alive) return; const dt = Math.min(0.05, (t - last) / 1000); last = t; if (f(dt, t) !== false) id = requestAnimationFrame(loop); }; id = requestAnimationFrame(loop); cleans.push(() => cancelAnimationFrame(id)); },
+    on(target, ev, f, opt) { target.addEventListener(ev, f, opt); cleans.push(() => target.removeEventListener(ev, f, opt)); },
+    onClose(f) { cleans.push(f); },
+    // Ergebnis-Overlay: {title, text, coins, again: true}
+    finish(o = {}) {
+      const box = h(`<div class="over"><div class="box"><h2>${o.title || 'Fertig!'}</h2><div class="muted">${o.text || ''}</div>
+        <div class="gain">${o.coins ? '+' + fmt(o.coins) + ' 🪙' : o.coins === 0 ? '<span class="muted" style="font-size:15px">keine Coins diesmal</span>' : ''}</div>
+        <div class="rowc"><button class="btn main" type="button" data-a="again">⟳ Nochmal</button><button class="btn" type="button" data-a="back">← Galerie</button></div></div></div>`);
+      box.addEventListener('click', (e) => { const a = e.target.dataset.a; if (a === 'again') hooks.restart(); if (a === 'back') hooks.back(); });
+      root.appendChild(box);
+    },
+    // Spielkarte als HTML ({r: 2..14, s: 's'|'h'|'d'|'c'})
+    cardHtml(c, cls = '') {
+      if (!c) return `<div class="pc back ${cls}" style="--cb:${cardBack()}"></div>`;
+      const R = { 11: 'B', 12: 'D', 13: 'K', 14: 'A' }[c.r] || String(c.r), S = { s: '♠', h: '♥', d: '♦', c: '♣' }[c.s];
+      return `<div class="pc ${cls} ${c.s === 'h' || c.s === 'd' ? 'red' : ''}"><div class="r">${R}${S}</div><div class="c">${S}</div><div class="r rb">${R}${S}</div></div>`;
+    },
+    // Canvas mit fester logischer Größe (W×H), passt sich der Bühne an, scharf auf Retina
+    canvas(W, H, host) {
+      const cv = document.createElement('canvas'), g = cv.getContext('2d');
+      const fit = () => {
+        const st = $('#stage'), aw = Math.min(st.clientWidth - 20, 760), ah = st.clientHeight - 90;
+        const s = Math.max(0.3, Math.min(aw / W, ah / H)), dpr = Math.min(2, window.devicePixelRatio || 1);
+        cv.style.width = Math.round(W * s) + 'px'; cv.style.height = Math.round(H * s) + 'px';
+        cv.width = Math.round(W * s * dpr); cv.height = Math.round(H * s * dpr); g.setTransform(s * dpr, 0, 0, s * dpr, 0, 0);
+      };
+      (host || root).appendChild(cv); fit(); api.on(window, 'resize', fit);
+      cv.style.borderRadius = '14px'; cv.style.border = '1px solid #3a2e20'; cv.style.margin = '0 auto';
+      return { cv, g, W, H, fit };
+    },
+    deck(n = 1) { const d = []; for (let k = 0; k < n; k++) for (const s of 'shdc') for (let r = 2; r <= 14; r++) d.push({ r, s }); return shuffle(d); },
+  };
+  api._close = () => { alive = false; for (const f of cleans.splice(0)) try { f(); } catch (e) { console.error(e); } };
+  return api;
+}
+
+// ---- games/blackjack.js ----
+// Stammtisch 21: Blackjack gegen den Dealer mit Coin-Einsatz.
+MG.register({
+  id: 'bj', title: 'Stammtisch 21', icon: '🂡', bg: ['#14532d', '#05200f'], cat: 'karten', players: '1',
+  desc: 'Blackjack gegen den Dealer. Setz deine Coins – 21 schlägt alles.', added: '2026-11-03', pop: 84,
+  tags: ['blackjack', 'karten', 'einsatz', 'casino', '21'], unit: 'Gewinn',
+  help: '<p>Komm näher an <b>21</b> als der Dealer, ohne drüber zu gehen. Bildkarten zählen 10, Ass 1 oder 11. Der Dealer zieht bis 17.</p><p><b>Karte</b> = ziehen · <b>Stehen</b> = aufhören · <b>Verdoppeln</b> = Einsatz ×2, genau eine Karte. Sieg zahlt 1:1, Blackjack (Ass + 10 mit den ersten 2 Karten) 3:2. Der Einsatz kommt aus deinen 🪙 – Gewinne zählen zum Tageslimit.</p>',
+  mount(root, api) {
+    let deck = api.deck(4), bet = 10, P = [], Dl = [], stake = 0, phase = 'bet', net = 0;
+    const val = (h) => { let s = 0, a = 0; for (const c of h) { s += c.r === 14 ? 11 : Math.min(10, c.r); if (c.r === 14) a++; } while (s > 21 && a) { s -= 10; a--; } return s; };
+    const draw1 = () => { if (deck.length < 15) deck = api.deck(4); return deck.pop(); };
+    root.innerHTML = `<style>.bjt{background:${(SKIN[Wallet.d.equip.felt] || {}).bg || 'radial-gradient(#1f7a4a,#0d3d24)'};border:8px solid #5a3b1c;border-radius:120px/60px;padding:20px 14px;width:100%;max-width:560px;box-shadow:inset 0 0 40px rgba(0,0,0,.6)}
+      .hand{display:flex;gap:6px;justify-content:center;min-height:88px;flex-wrap:wrap}.lbl{font-size:13px;color:#e8ffe8;margin:4px 0;text-align:center;font-weight:700}</style>
+      <div class="gm center"><div class="hud"><span>Guthaben <b id="bj_c">0</b> 🪙</span><span>Heute <b id="bj_n">±0</b></span><span>Bester Gewinn <b>${api.best() || 0}</b></span></div>
+      <div class="bjt"><div class="lbl" id="bj_dl">Dealer</div><div class="hand" id="bj_d"></div><div class="msg" id="bj_m" style="margin:10px 0;color:#fff"></div><div class="hand" id="bj_p"></div><div class="lbl" id="bj_pl">Du</div></div>
+      <div class="rowc" id="bj_bet"><span class="muted" style="align-self:center">Einsatz:</span>${[10, 25, 50, 100].map((v) => `<button class="btn" data-b="${v}" type="button">${v}</button>`).join('')}<button class="btn main big" id="bj_deal" type="button">Austeilen</button></div>
+      <div class="rowc" id="bj_act" hidden><button class="btn green big" id="bj_hit" type="button">➕ Karte</button><button class="btn red big" id="bj_st" type="button">✋ Stehen</button><button class="btn big" id="bj_dbl" type="button">×2 Verdoppeln</button></div></div>`;
+    const show = (hide) => {
+      $('#bj_d', root).innerHTML = Dl.map((c, i) => api.cardHtml(hide && i === 1 ? null : c, 'deal')).join('');
+      $('#bj_p', root).innerHTML = P.map((c) => api.cardHtml(c, 'deal')).join('');
+      $('#bj_dl', root).textContent = Dl.length ? 'Dealer ' + (hide ? '?' : val(Dl)) : 'Dealer';
+      $('#bj_pl', root).textContent = P.length ? 'Du: ' + val(P) + (stake ? ' · Einsatz ' + stake + ' 🪙' : '') : 'Du';
+      $('#bj_c', root).textContent = fmt(api.coins()); $('#bj_n', root).textContent = (net > 0 ? '+' : net < 0 ? '−' : '±') + Math.abs(net);
+      $('#bj_bet', root).hidden = phase !== 'bet'; $('#bj_act', root).hidden = phase !== 'play';
+      $('#bj_dbl', root).disabled = P.length !== 2 || api.coins() < stake;
+      for (const b of $$('[data-b]', root)) b.classList.toggle('main', +b.dataset.b === bet);
+    };
+    const settle = (res) => {
+      phase = 'bet'; api.played();
+      let back = 0, prof = 0, txt;
+      if (res === 'bj') { back = stake; prof = Math.floor(stake * 1.5); txt = '🂡 BLACKJACK!'; }
+      else if (res === 'win') { back = stake; prof = stake; txt = '🏆 Gewonnen!'; }
+      else if (res === 'push') { back = stake; txt = '🤝 Unentschieden – Einsatz zurück'; }
+      else txt = res === 'bust' ? '💥 Über 21 – verloren' : '🤵 Dealer gewinnt';
+      if (back) api.refund(back, 'Stammtisch 21 Einsatz zurück');
+      const got = prof ? api.reward(prof, 'Stammtisch 21 Gewinn') : 0;
+      net += got - (back ? 0 : stake);
+      if (got) api.score(Math.max(api.best() || 0, got));
+      api.sfx(prof ? 'win' : back ? 'click' : 'lose');
+      $('#bj_m', root).innerHTML = txt + (got ? ` <b style="color:#ffd166">+${got} 🪙</b>` : res === 'push' ? '' : ` <span style="opacity:.8">−${stake} 🪙</span>`);
+      stake = 0; show(false);
+    };
+    const dealerPlay = () => {
+      phase = 'dealer'; show(false);
+      const loop = () => {
+        if (val(Dl) < 17) { Dl.push(draw1()); api.sfx('flip'); show(false); api.timeout(loop, 550); return; }
+        const p = val(P), d = val(Dl);
+        settle(d > 21 || p > d ? 'win' : p === d ? 'push' : 'lose');
+      };
+      api.timeout(loop, 500);
+    };
+    $('#bj_bet', root).onclick = (e) => { const b = e.target.dataset.b; if (b) { bet = +b; api.sfx('click'); show(false); } };
+    $('#bj_deal', root).onclick = () => {
+      if (api.coins() < bet) { toast('Nicht genug 🪙 – spiel andere MiniGames oder tausche Sats/Chips in der Wechselstube.'); return; }
+      api.spend(bet, 'Stammtisch 21 Einsatz', 'new'); stake = bet; P = [draw1(), draw1()]; Dl = [draw1(), draw1()]; phase = 'play'; api.sfx('flip');
+      $('#bj_m', root).textContent = '';
+      show(true);
+      if (val(P) === 21) { phase = 'dealer'; show(false); api.timeout(() => settle(val(Dl) === 21 ? 'push' : 'bj'), 600); }
+    };
+    $('#bj_hit', root).onclick = () => { if (phase !== 'play') return; P.push(draw1()); api.sfx('flip'); show(true); if (val(P) > 21) { phase = 'dealer'; show(false); api.timeout(() => settle('bust'), 500); } else if (val(P) === 21) dealerPlay(); };
+    $('#bj_st', root).onclick = () => { if (phase === 'play') dealerPlay(); };
+    $('#bj_dbl', root).onclick = () => {
+      if (phase !== 'play' || P.length !== 2 || !api.spend(stake, 'Stammtisch 21 Verdoppeln', 'add')) return;
+      stake *= 2; P.push(draw1()); api.sfx('flip'); show(true);
+      if (val(P) > 21) { phase = 'dealer'; show(false); api.timeout(() => settle('bust'), 500); } else dealerPlay();
+    };
+    $('#bj_m', root).textContent = 'Einsatz wählen und austeilen!';
+    show(false);
+  },
+});
+
+// ---- games/bullbear.js ----
+// Bulle & Bär: 30 Sekunden Bullen antippen, Bären in Ruhe lassen (Hau-den-Maulwurf).
+MG.register({
+  id: 'bullbear', title: 'Bulle & Bär', icon: '🐂', bg: ['#8a5a00', '#2a1a00'], cat: 'geschick', players: '1',
+  desc: '30 Sekunden: Tipp die Bullen weg, lass die Bären in Ruhe. Combos geben Extrapunkte!', added: '2026-11-03', pop: 86,
+  tags: ['reaktion', 'tippen', 'whack a mole', 'schnell', 'handy'], unit: 'Punkte',
+  help: '<p>Tippe auf jeden <b>🐂 Bullen</b>, der auftaucht (+1, mit Combo mehr). <b>🐋 Wale</b> geben +5. Wer einen <b>🐻 Bären</b> antippt, verliert 3 Punkte und die Combo.</p><p>Coins: Punkte ÷ 2 (max. 60).</p>',
+  mount(root, api) {
+    root.innerHTML = `<style>.holes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(90vw,380px)}
+      .hole{aspect-ratio:1;border-radius:50%;background:radial-gradient(ellipse at 50% 70%,#000 0 45%,#2a2219 46% 60%,#15110d 61%);border:0;position:relative;overflow:hidden;cursor:pointer;padding:0;font-size:clamp(40px,13vw,62px)}
+      .hole span{position:absolute;left:0;right:0;bottom:-80%;transition:bottom .12s ease-out;pointer-events:none}.hole.up span{bottom:12%}.hole.hit{background:radial-gradient(ellipse at 50% 70%,#1d3b2c 0 45%,#2a2219 46% 60%,#15110d 61%)}
+      .hole.ouch{background:radial-gradient(ellipse at 50% 70%,#5a1010 0 45%,#2a2219 46% 60%,#15110d 61%)}.tbar{width:min(90vw,380px);height:8px;background:#2a2219;border-radius:4px;overflow:hidden}.tbar i{display:block;height:100%;background:linear-gradient(90deg,#3ecf8e,#f7931a,#ff5a5a)}</style>
+      <div class="gm center"><div class="hud" id="bb_h"></div><div class="tbar"><i id="bb_t" style="width:100%"></i></div><div class="msg" id="bb_m">Tippe auf Start!</div>
+      <div class="holes" id="bb_g">${Array.from({ length: 9 }, (_, i) => `<button type="button" class="hole" data-i="${i}" aria-label="Loch ${i + 1}"><span></span></button>`).join('')}</div>
+      <button class="btn main big" id="bb_go" type="button">▶ Start</button></div>`;
+    const holes = $$('.hole', root), DUR = 30;
+    let S = { score: 0, combo: 0, t: 0, run: false, slots: Array(9).fill(null), spawn: 0 };
+    const hud = () => { $('#bb_h', root).innerHTML = `<span>Punkte <b>${S.score}</b></span><span>Combo <b>×${1 + Math.floor(S.combo / 5)}</b></span><span>Rekord <b>${api.best() || 0}</b></span>`; };
+    const setHole = (i, who) => { S.slots[i] = who; const el = holes[i]; el.classList.toggle('up', !!who); el.classList.remove('hit', 'ouch'); if (who) el.firstChild.textContent = { bull: '🐂', bear: '🐻', whale: '🐋' }[who.k]; };
+    const end = () => {
+      S.run = false; for (let i = 0; i < 9; i++) setHole(i, null); api.played();
+      const rec = api.score(S.score), got = api.reward(clamp(Math.floor(S.score / 2), 0, 60), 'Bulle & Bär: ' + S.score);
+      api.sfx('win'); api.finish({ title: S.score >= 60 ? '🐂 Bullrun!' : '⏱️ Zeit um!', text: `${S.score} Punkte${rec && S.score ? '<br>Neuer Rekord! 🏆' : ''}`, coins: got });
+    };
+    $('#bb_g', root).onpointerdown = (e) => {
+      const b = e.target.closest('.hole'); if (!b || !S.run) return; const i = +b.dataset.i, w = S.slots[i]; if (!w) return;
+      e.preventDefault(); setHole(i, null);
+      if (w.k === 'bear') { S.score = Math.max(0, S.score - 3); S.combo = 0; b.classList.add('ouch'); api.sfx('bad'); $('#bb_m', root).textContent = pick(['🐻 Bärenfalle!', 'Autsch – Bär!', 'FUD! −3']); }
+      else { S.combo++; const m = 1 + Math.floor(S.combo / 5); S.score += (w.k === 'whale' ? 5 : 1) * m; b.classList.add('hit'); api.sfx(w.k === 'whale' ? 'coin' : 'good'); if (S.combo % 5 === 0) $('#bb_m', root).textContent = `🔥 Combo ×${m}!`; }
+      hud();
+    };
+    $('#bb_go', root).onclick = (e) => { e.target.hidden = true; S = { score: 0, combo: 0, t: 0, run: true, slots: Array(9).fill(null), spawn: 0.3 }; $('#bb_m', root).textContent = 'Los! 🐂'; hud(); };
+    hud();
+    api.raf((dt) => {
+      if (!S.run) return;
+      S.t += dt; $('#bb_t', root).style.width = Math.max(0, 100 - S.t / DUR * 100) + '%';
+      if (S.t >= DUR) return end(), true;
+      const life = Math.max(0.55, 1.15 - S.t * 0.02);
+      for (let i = 0; i < 9; i++) { const w = S.slots[i]; if (w && (w.life -= dt) <= 0) { if (w.k !== 'bear') S.combo = 0; setHole(i, null); hud(); } }
+      if ((S.spawn -= dt) <= 0) {
+        S.spawn = Math.max(0.28, 0.7 - S.t * 0.014);
+        const freeH = S.slots.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0);
+        if (freeH.length) { const r = Math.random(); setHole(pick(freeH), { k: r < 0.06 ? 'whale' : r < 0.36 ? 'bear' : 'bull', life }); }
+      }
+    });
+  },
+});
+
+// ---- games/highlow.js ----
+// High-Low: Ist die nächste Karte höher oder niedriger? Serie aufbauen, rechtzeitig Kasse machen.
+MG.register({
+  id: 'highlow', title: 'High-Low', icon: '🃏', bg: ['#7a1f1f', '#2a0c0c'], cat: 'karten', players: '1',
+  desc: 'Höher oder niedriger? Bau eine Serie auf und mach rechtzeitig Kasse.', added: '2026-11-03', pop: 88,
+  tags: ['karten', 'glück', 'serie', 'schnell'], unit: 'Serie',
+  help: '<p>Tippe, ob die nächste Karte <b>höher</b> oder <b>niedriger</b> ist (Ass ist hoch). Gleicher Wert = unentschieden, die Serie bleibt.</p><p>Jeder Treffer erhöht den Topf. Mit <b>Kasse machen</b> sicherst du die Coins – ein Fehler und der Topf ist weg!</p>',
+  mount(root, api) {
+    let deck = api.deck(), cur = deck.pop(), streak = 0, pot = 0, busy = false;
+    const potFor = (s) => Math.round(2 * s * s / 3 + 2 * s); // 1:3 2:7 3:12 4:19 5:27 …
+    root.innerHTML = `<div class="gm center">
+      <div class="hud"><span>Serie <b id="hl_s">0</b></span><span>Topf <b id="hl_p">0</b> 🪙</span><span>Rekord <b>${api.best() || 0}</b></span></div>
+      <div class="rowc" style="align-items:center;gap:22px"><div id="hl_cur"></div><div style="font-size:26px" class="muted">→</div><div id="hl_next"></div></div>
+      <div class="msg" id="hl_m">Höher oder niedriger als die ${''}Karte links?</div>
+      <div class="rowc"><button class="btn green big" id="hl_hi" type="button">▲ Höher</button><button class="btn red big" id="hl_lo" type="button">▼ Niedriger</button></div>
+      <button class="btn main" id="hl_cash" type="button" disabled>💰 Kasse machen</button>
+      <div class="muted" style="font-size:12px">Noch <span id="hl_left">${deck.length}</span> Karten im Stapel</div></div>`;
+    const draw = (next) => {
+      $('#hl_cur', root).innerHTML = api.cardHtml(cur, 'big deal');
+      $('#hl_next', root).innerHTML = next ? api.cardHtml(next, 'big deal') : api.cardHtml(null, 'big');
+      $('#hl_s', root).textContent = streak; $('#hl_p', root).textContent = pot; $('#hl_left', root).textContent = deck.length;
+      $('#hl_cash', root).disabled = !pot || busy;
+    };
+    const end = (lost) => {
+      busy = true; api.played();
+      const rec = api.score(streak);
+      const got = lost ? 0 : api.reward(pot, 'High-Low Serie ' + streak);
+      api.finish({ title: lost ? '💥 Daneben!' : '💰 Kasse gemacht!', text: `Serie: <b>${streak}</b>${rec && streak ? ' – neuer Rekord! 🏆' : ''}${lost && pot ? `<br>Der Topf von ${pot} 🪙 ist weg.` : ''}`, coins: got });
+    };
+    const guess = (up) => {
+      if (busy) return; busy = true; api.sfx('flip');
+      if (!deck.length) deck = api.deck();
+      const nx = deck.pop(); draw(nx);
+      const ok = nx.r === cur.r ? null : (nx.r > cur.r) === up;
+      api.timeout(() => {
+        if (ok === false) { api.sfx('bad'); $('#hl_m', root).textContent = 'Leider falsch …'; return end(true); }
+        if (ok) { streak++; pot = potFor(streak); api.sfx('good'); $('#hl_m', root).textContent = pick(['Treffer! 🚀', 'Bullish! 📈', 'Sauber!', 'Weiter so!']); }
+        else $('#hl_m', root).textContent = 'Gleicher Wert – Serie bleibt.';
+        cur = nx; busy = false; draw(null);
+      }, 650);
+    };
+    $('#hl_hi', root).onclick = () => guess(true);
+    $('#hl_lo', root).onclick = () => guess(false);
+    $('#hl_cash', root).onclick = () => { if (!busy && pot) end(false); };
+    api.on(window, 'keydown', (e) => { if (e.key === 'ArrowUp') guess(true); if (e.key === 'ArrowDown') guess(false); if (e.key === 'Enter' && pot) end(false); });
+    draw(null);
+  },
+});
+
+// ---- games/kniffel.js ----
+// Kniffel-Mini: 7 Runden, 3 Würfe pro Zug, gegen den Stammtisch-Bot.
+(() => {
+  const PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+  const dieHtml = (v, held, i, roll) => `<button type="button" class="die${held ? ' held' : ''}${roll ? ' roll' : ''}" data-i="${i}" aria-label="Würfel ${v}${held ? ', gehalten' : ''}">${Array.from({ length: 9 }, (_, k) => `<i${PIPS[v].includes(k) ? ' class="p"' : ''}></i>`).join('')}</button>`;
+  const css = `<style>.die{width:58px;height:58px;border-radius:12px;background:#fbf7ee;border:3px solid transparent;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:7px;gap:2px;cursor:pointer;box-shadow:0 4px 0 #b9ad98,0 6px 12px rgba(0,0,0,.4)}
+  .die i{border-radius:50%}.die i.p{background:#1b1b1b}.die.held{border-color:#f7931a;transform:translateY(4px);box-shadow:0 0 0 #b9ad98,0 0 14px rgba(247,147,26,.8)}
+  .die.roll{animation:dr .35s}@keyframes dr{30%{transform:rotate(25deg) scale(.9)}70%{transform:rotate(-15deg)}}
+  .kt{width:100%;max-width:440px;border-collapse:collapse;font-size:14px}.kt td,.kt th{padding:6px 8px;border-bottom:1px solid #2a2219;text-align:left}.kt td.n,.kt th.n{text-align:right;font-variant-numeric:tabular-nums;width:70px}
+  .kt tr.pickable{cursor:pointer}.kt tr.pickable:hover td{background:#2a1f10}.kt tr.pickable td.n.me{color:#3ecf8e;font-weight:800}
+  .kt tfoot td{font-weight:800;border-top:2px solid #3a2e20}@media(max-width:560px){.die{width:48px;height:48px;padding:6px}}</style>`;
+  const CATS_K = [
+    ['dp', 'Dreierpasch', 'Summe aller Augen'], ['vp', 'Viererpasch', 'Summe aller Augen'], ['fh', 'Full House', '25'],
+    ['ks', 'Kleine Straße', '30 (4 in Folge)'], ['gs', 'Große Straße', '40 (5 in Folge)'], ['kn', 'Kniffel', '50 (5 gleiche)'], ['ch', 'Chance', 'Summe aller Augen'],
+  ];
+  function scoreOf(cat, d) {
+    const c = [0, 0, 0, 0, 0, 0, 0]; for (const v of d) c[v]++;
+    const sum = d.reduce((a, b) => a + b, 0), mx = Math.max(...c), u = new Set(d);
+    const run = (n) => { for (let s = 1; s <= 7 - n; s++) { let ok = true; for (let k = 0; k < n; k++) if (!u.has(s + k)) ok = false; if (ok) return true; } return false; };
+    switch (cat) {
+      case 'dp': return mx >= 3 ? sum : 0; case 'vp': return mx >= 4 ? sum : 0;
+      case 'fh': return (c.includes(3) && c.includes(2)) || mx === 5 ? 25 : 0;
+      case 'ks': return run(4) ? 30 : 0; case 'gs': return run(5) ? 40 : 0;
+      case 'kn': return mx === 5 ? 50 : 0; case 'ch': return sum;
+    }
+    return 0;
+  }
+  // Bot: hält die häufigste Zahl (oder baut auf eine Straße), wählt am Ende die beste freie Kategorie
+  function botHold(d, free) {
+    const c = [0, 0, 0, 0, 0, 0, 0]; for (const v of d) c[v]++;
+    const u = [...new Set(d)].sort();
+    const wantStraight = (free.has('gs') || free.has('ks')) && u.length >= 4;
+    if (wantStraight) { const keep = new Set(); return d.map((v) => { if (keep.has(v)) return false; keep.add(v); return true; }); }
+    let best = 6; for (let v = 6; v >= 1; v--) if (c[v] > c[best]) best = v;
+    return d.map((v) => v === best);
+  }
+  function botPick(d, free) {
+    let bc = null, bs = -1;
+    for (const k of free) { let s = scoreOf(k, d); if (k === 'ch') s -= 12; if (s > bs) { bs = s; bc = k; } }
+    if (bs <= 0) for (const k of ['kn', 'gs', 'vp', 'fh', 'ks', 'dp', 'ch']) if (free.has(k)) return k;
+    return bc;
+  }
+  MG.register({
+    id: 'kniffel', title: 'Kniffel-Mini', icon: '🎲', bg: ['#1f5a9b', '#0a1d33'], cat: 'wuerfel', players: '1',
+    desc: '7 Runden, 3 Würfe pro Zug – schlag den Stammtisch-Bot.', added: '2026-11-03', pop: 80,
+    tags: ['würfel', 'yahtzee', 'bot', 'taktik'], unit: 'Punkte',
+    help: '<p>Pro Zug darfst du <b>bis zu 3-mal</b> würfeln. Tippe Würfel an, um sie zu <b>halten</b>. Danach trägst du das Ergebnis in eine freie Zeile ein (Tabelle antippen). Jede Zeile nur einmal – manchmal muss man eine 0 eintragen.</p><p>Nach 7 Runden gewinnt, wer mehr Punkte hat. Sieg = 40 🪙, Unentschieden = 15 🪙, plus 1 🪙 pro 10 Punkte.</p>',
+    mount(root, api) {
+      const S = { me: {}, bot: {}, dice: [1, 2, 3, 4, 5], held: [0, 0, 0, 0, 0], rolls: 0, turn: 'me', round: 1, busy: false };
+      root.innerHTML = css + `<div class="gm center">
+        <div class="hud"><span>Runde <b id="kn_r">1</b>/7</span><span>Würfe <b id="kn_w">3</b></span><span>Rekord <b>${api.best() || 0}</b></span></div>
+        <div class="msg" id="kn_m">Du bist dran – würfeln!</div>
+        <div class="rowc" id="kn_d"></div>
+        <button class="btn main big" id="kn_roll" type="button">🎲 Würfeln</button>
+        <table class="kt"><thead><tr><th>Kategorie</th><th class="n">Du</th><th class="n">Bot 🤖</th></tr></thead><tbody id="kn_t"></tbody>
+        <tfoot><tr><td>Summe</td><td class="n" id="kn_sm">0</td><td class="n" id="kn_sb">0</td></tr></tfoot></table></div>`;
+      const free = (who) => new Set(CATS_K.map((c) => c[0]).filter((k) => S[who][k] === undefined));
+      const total = (who) => Object.values(S[who]).reduce((a, b) => a + b, 0);
+      const render = (rolled) => {
+        $('#kn_d', root).innerHTML = S.dice.map((v, i) => dieHtml(v, S.held[i], i, rolled && !S.held[i])).join('');
+        $('#kn_r', root).textContent = Math.min(7, S.round); $('#kn_w', root).textContent = 3 - S.rolls;
+        $('#kn_roll', root).disabled = S.busy || S.turn !== 'me' || S.rolls >= 3;
+        const canPick = S.turn === 'me' && S.rolls > 0 && !S.busy;
+        $('#kn_t', root).innerHTML = CATS_K.map(([k, n, sub]) => {
+          const mine = S.me[k], bot = S.bot[k], open = mine === undefined;
+          return `<tr data-k="${k}" class="${open && canPick ? 'pickable' : ''}"><td>${n}<br><small class="muted">${sub}</small></td>
+            <td class="n ${open && canPick ? 'me' : ''}">${open ? (canPick ? scoreOf(k, S.dice) : '–') : mine}</td><td class="n">${bot === undefined ? '–' : bot}</td></tr>`;
+        }).join('');
+        $('#kn_sm', root).textContent = total('me'); $('#kn_sb', root).textContent = total('bot');
+      };
+      const roll = () => { S.dice = S.dice.map((v, i) => (S.held[i] ? v : rnd(1, 6))); S.rolls++; api.sfx('dice'); render(true); };
+      const done = () => {
+        api.played();
+        const a = total('me'), b = total('bot'), rec = api.score(a);
+        const base = a > b ? 40 : a === b ? 15 : 0, got = api.reward(base + Math.floor(a / 10), 'Kniffel-Mini ' + a + ':' + b);
+        api.sfx(a > b ? 'win' : 'lose');
+        api.finish({ title: a > b ? '🏆 Gewonnen!' : a === b ? '🤝 Unentschieden' : '🤖 Der Bot gewinnt', text: `Du <b>${a}</b> : <b>${b}</b> Bot${rec ? '<br>Neuer Rekord! 🏆' : ''}`, coins: got });
+      };
+      const botTurn = async () => {
+        S.turn = 'bot'; S.busy = true; S.held = [0, 0, 0, 0, 0]; S.rolls = 0; $('#kn_m', root).textContent = '🤖 Der Bot würfelt …';
+        const wait = (ms) => new Promise((r) => api.timeout(r, ms));
+        const fr = free('bot');
+        for (let i = 0; i < 3; i++) {
+          await wait(650); if (!api.alive) return; roll();
+          if (scoreOf('kn', S.dice) || scoreOf('gs', S.dice) && fr.has('gs')) break;
+          if (i < 2) { S.held = botHold(S.dice, fr).map(Number); render(false); }
+        }
+        await wait(700); if (!api.alive) return;
+        const k = botPick(S.dice, fr); S.bot[k] = scoreOf(k, S.dice);
+        $('#kn_m', root).textContent = `🤖 Bot trägt ${S.bot[k]} bei „${CATS_K.find((c) => c[0] === k)[1]}“ ein.`;
+        S.round++; S.turn = 'me'; S.held = [0, 0, 0, 0, 0]; S.rolls = 0; S.busy = false; render(false);
+        if (S.round > 7) return done();
+      };
+      $('#kn_roll', root).onclick = () => { if (S.turn === 'me' && S.rolls < 3 && !S.busy) { roll(); $('#kn_m', root).textContent = S.rolls < 3 ? 'Würfel antippen zum Halten, nochmal würfeln oder eintragen.' : 'Jetzt in eine Zeile eintragen!'; } };
+      $('#kn_d', root).onclick = (e) => { const b = e.target.closest('.die'); if (!b || S.turn !== 'me' || !S.rolls || S.rolls >= 3) return; const i = +b.dataset.i; S.held[i] ^= 1; api.sfx('click'); render(false); };
+      $('#kn_t', root).onclick = (e) => {
+        const tr = e.target.closest('tr.pickable'); if (!tr) return;
+        const k = tr.dataset.k; S.me[k] = scoreOf(k, S.dice); api.sfx('good'); S.busy = true; render(false); botTurn();
+      };
+      render(false);
+    },
+  });
+  window.__kniffelScore = scoreOf; // für Tests
+})();
+
+// ---- games/memory.js ----
+// Memory: Paare finden – solo gegen Zug-/Zeitzähler oder zu zweit am selben Gerät.
+MG.register({
+  id: 'memory', title: 'Krypto-Memory', icon: '🧠', bg: ['#6b2fa8', '#1d0d33'], cat: 'karten', players: '1–2',
+  desc: 'Finde alle Paare – mit möglichst wenig Zügen oder zu zweit am selben Gerät.', added: '2026-11-03', pop: 75,
+  tags: ['gedächtnis', 'paare', 'memory', 'lokal', '2 spieler'], best: 'low', unit: 'Züge',
+  help: '<p>Decke immer zwei Karten auf. Gleiche Bilder bleiben liegen. <b>Solo:</b> Je weniger Züge, desto mehr Coins (Rekord = wenigste Züge). <b>Zu zweit:</b> Wer ein Paar findet, ist nochmal dran – wer mehr Paare hat, gewinnt.</p><p>Die Rückseite ist dein angelegter Kartenrücken aus dem Shop.</p>',
+  mount(root, api) {
+    const ICONS = ['🚀', '🐂', '🐻', '🐋', '💎', '🍕', '🌕', '🔥', '📈', '🦊', '🍌', '🧻'];
+    let mode = null;
+    const css = `<style>.mem{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:440px;perspective:800px}
+      .mc{aspect-ratio:3/4;position:relative;cursor:pointer;transform-style:preserve-3d;transition:transform .35s;border:0;background:none;padding:0}
+      .mc.up,.mc.done{transform:rotateY(180deg)}.mc>div{position:absolute;inset:0;border-radius:10px;backface-visibility:hidden;display:grid;place-items:center}
+      .mc .b{background:var(--cb);border:3px solid #fbf7ee;box-shadow:0 3px 8px rgba(0,0,0,.4)}.mc .f{background:#fbf7ee;transform:rotateY(180deg);font-size:clamp(26px,8vw,44px)}
+      .mc.done .f{background:#d9f7e8;box-shadow:0 0 12px rgba(62,207,142,.7)}</style>`;
+    const start = (m) => {
+      mode = m;
+      const pairs = 8, set = shuffle(ICONS.slice()).slice(0, pairs), cards = shuffle([...set, ...set]);
+      let open = [], moves = 0, found = 0, t0 = 0, lock = false, turn = 0; const pts = [0, 0];
+      root.innerHTML = css + `<div class="gm center"><div class="hud" id="mm_h"></div><div class="msg" id="mm_m"></div>
+        <div class="mem" id="mm_g" style="--cb:${cardBack()}">${cards.map((c, i) => `<button type="button" class="mc" data-i="${i}" aria-label="Karte"><div class="b"></div><div class="f">${c}</div></button>`).join('')}</div></div>`;
+      const hud = () => {
+        const sec = t0 ? Math.floor((Date.now() - t0) / 1000) : 0;
+        $('#mm_h', root).innerHTML = m === 1 ? `<span>Züge <b>${moves}</b></span><span>Zeit <b>${sec}s</b></span><span>Rekord <b>${api.best() ?? '–'}</b></span>`
+          : `<span style="${turn === 0 ? 'border-color:#f7931a' : ''}">🟠 Spieler 1: <b>${pts[0]}</b></span><span style="${turn === 1 ? 'border-color:#5ab4ff' : ''}">🔵 Spieler 2: <b>${pts[1]}</b></span>`;
+        if (m === 2) $('#mm_m', root).textContent = `${turn === 0 ? '🟠 Spieler 1' : '🔵 Spieler 2'} ist dran`;
+      };
+      api.interval(hud, 1000); hud();
+      $('#mm_g', root).onclick = (e) => {
+        const b = e.target.closest('.mc'); if (!b || lock || b.classList.contains('up') || b.classList.contains('done')) return;
+        if (!t0) t0 = Date.now();
+        b.classList.add('up'); api.sfx('flip'); open.push(b);
+        if (open.length < 2) return;
+        moves++; lock = true;
+        const [a, c] = open; open = [];
+        if (cards[a.dataset.i] === cards[c.dataset.i]) {
+          api.timeout(() => {
+            a.classList.add('done'); c.classList.add('done'); api.sfx('good'); found++; pts[turn]++; lock = false; hud();
+            if (found === pairs) {
+              api.played(); const sec = Math.round((Date.now() - t0) / 1000);
+              if (m === 1) {
+                const rec = api.score(moves), got = api.reward(clamp(48 - (moves - pairs) * 2, 6, 40) + (sec < 40 ? 5 : 0), 'Memory in ' + moves + ' Zügen');
+                api.sfx('win'); api.finish({ title: '🧠 Alle Paare!', text: `${moves} Züge in ${sec} s${rec ? '<br>Neuer Rekord! 🏆' : ''}`, coins: got });
+              } else {
+                const w = pts[0] === pts[1] ? null : pts[0] > pts[1] ? '🟠 Spieler 1' : '🔵 Spieler 2';
+                const got = api.reward(10, 'Memory zu zweit'); api.sfx('win');
+                api.finish({ title: w ? w + ' gewinnt!' : '🤝 Unentschieden', text: `${pts[0]} : ${pts[1]} Paare`, coins: got });
+              }
+            }
+          }, 380);
+        } else {
+          api.timeout(() => { a.classList.remove('up'); c.classList.remove('up'); lock = false; if (m === 2) turn ^= 1; hud(); }, 850);
+        }
+        hud();
+      };
+    };
+    root.innerHTML = `<div class="gm center"><h2>🧠 Krypto-Memory</h2><p class="muted">Wie willst du spielen?</p>
+      <div class="rowc"><button class="btn main big" id="mm_1" type="button">👤 Solo</button><button class="btn big" id="mm_2" type="button">👥 Zu zweit</button></div></div>`;
+    $('#mm_1', root).onclick = () => start(1); $('#mm_2', root).onclick = () => start(2);
+  },
+});
+
+// ---- games/showdown.js ----
+// Showdown-Blitz: Welche Hold'em-Hand gewinnt? 45 Sekunden Poker-Training.
+(() => {
+  const NAMES = ['High Card', 'Ein Paar', 'Zwei Paare', 'Drilling', 'Straße', 'Flush', 'Full House', 'Vierling', 'Straight Flush'];
+  function eval5(cs) {
+    const rs = cs.map((c) => c.r).sort((a, b) => b - a), cnt = {};
+    for (const r of rs) cnt[r] = (cnt[r] || 0) + 1;
+    const groups = Object.entries(cnt).map(([r, n]) => [n, +r]).sort((a, b) => b[0] - a[0] || b[1] - a[1]);
+    const flush = cs.every((c) => c.s === cs[0].s);
+    const u = [...new Set(rs)]; let st = 0;
+    if (u.length === 5) { if (u[0] - u[4] === 4) st = u[0]; else if (u[0] === 14 && u[1] === 5) st = 5; }
+    let cat, kick;
+    if (st && flush) { cat = 8; kick = [st]; }
+    else if (groups[0][0] === 4) { cat = 7; kick = groups.map((g) => g[1]); }
+    else if (groups[0][0] === 3 && groups[1][0] === 2) { cat = 6; kick = groups.map((g) => g[1]); }
+    else if (flush) { cat = 5; kick = rs; }
+    else if (st) { cat = 4; kick = [st]; }
+    else if (groups[0][0] === 3) { cat = 3; kick = groups.map((g) => g[1]); }
+    else if (groups[0][0] === 2 && groups[1][0] === 2) { cat = 2; kick = groups.map((g) => g[1]); }
+    else if (groups[0][0] === 2) { cat = 1; kick = groups.map((g) => g[1]); }
+    else { cat = 0; kick = rs; }
+    let v = cat; for (let i = 0; i < 5; i++) v = v * 15 + (kick[i] || 0);
+    return v;
+  }
+  function best7(cs) { let b = -1; for (let a = 0; a < 7; a++) for (let c = a + 1; c < 7; c++) { const five = cs.filter((_, i) => i !== a && i !== c); b = Math.max(b, eval5(five)); } return b; }
+  const catOf = (v) => NAMES[Math.floor(v / 759375)];
+  window.__pokerEval = { eval5, best7, catOf }; // für Tests
+  MG.register({
+    id: 'showdown', title: 'Showdown-Blitz', icon: '♠️', bg: ['#4a1f6b', '#14081f'], cat: 'karten', players: '1',
+    desc: 'Poker-Training: Welche Hand gewinnt den Showdown? 45 Sekunden, so viele wie möglich.', added: '2026-11-03', pop: 72,
+    tags: ['poker', 'holdem', 'training', 'schnell', 'lernen'], unit: 'Richtige',
+    help: '<p>Zwei Hold\'em-Hände, fünf Karten in der Mitte. Wer hat die bessere 5-Karten-Hand? Tippe <b>Hand A</b>, <b>Split</b> (gleich gut) oder <b>Hand B</b>.</p><p>Richtig = +1 (und es wird angezeigt, was gewonnen hat), falsch = −3 Sekunden. Coins: 2 🪙 pro Richtige (max. 60). Perfekt zum Üben für den Pokerabend!</p>',
+    mount(root, api) {
+      const DUR = 45; let S = null;
+      root.innerHTML = `<style>.sdh{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px;border-radius:12px;border:2px solid transparent;cursor:pointer;background:#15110d}.sdh:hover{border-color:#f2b33d}.sdh.win{border-color:#3ecf8e;background:#13291d}.sdh.lose{opacity:.55}
+        .sdr{display:flex;gap:5px;justify-content:center}.tbar{width:min(90vw,420px);height:8px;background:#2a2219;border-radius:4px;overflow:hidden}.tbar i{display:block;height:100%;background:linear-gradient(90deg,#b07cff,#f7931a)}</style>
+        <div class="gm center"><div class="hud" id="sd_h"></div><div class="tbar"><i id="sd_t" style="width:100%"></i></div>
+        <div class="msg" id="sd_m">Wer gewinnt?</div>
+        <div class="sdr" id="sd_b"></div>
+        <div class="rowc" style="gap:16px"><div class="sdh" data-a="A" id="sd_A"><b>Hand A</b><div class="sdr"></div><small class="muted"></small></div><div class="sdh" data-a="B" id="sd_B"><b>Hand B</b><div class="sdr"></div><small class="muted"></small></div></div>
+        <div class="rowc"><button class="btn big" data-a="A" type="button">⬅ Hand A</button><button class="btn big" data-a="S" type="button">🤝 Split</button><button class="btn big" data-a="B" type="button">Hand B ➡</button></div>
+        <button class="btn main big" id="sd_go" type="button">▶ Start</button></div>`;
+      const hud = () => { $('#sd_h', root).innerHTML = `<span>Richtig <b>${S ? S.ok : 0}</b></span><span>Serie <b>${S ? S.streak : 0}</b></span><span>Rekord <b>${api.best() || 0}</b></span>`; };
+      const deal = () => {
+        const d = api.deck(); S.board = d.splice(0, 5); S.A = d.splice(0, 2); S.B = d.splice(0, 2);
+        S.va = best7([...S.A, ...S.board]); S.vb = best7([...S.B, ...S.board]); S.lock = false;
+        $('#sd_b', root).innerHTML = S.board.map((c) => api.cardHtml(c, 'sm deal')).join('');
+        for (const k of ['A', 'B']) { const el = $('#sd_' + k, root); el.className = 'sdh'; $('.sdr', el).innerHTML = S[k].map((c) => api.cardHtml(c, 'deal')).join(''); $('small', el).textContent = ' '; }
+      };
+      const answer = (a) => {
+        if (!S || !S.run || S.lock) return; S.lock = true;
+        const right = S.va > S.vb ? 'A' : S.vb > S.va ? 'B' : 'S';
+        $('small', $('#sd_A', root)).textContent = catOf(S.va); $('small', $('#sd_B', root)).textContent = catOf(S.vb);
+        if (right !== 'S') { $('#sd_' + right, root).classList.add('win'); $('#sd_' + (right === 'A' ? 'B' : 'A'), root).classList.add('lose'); }
+        if (a === right) { S.ok++; S.streak++; api.sfx('good'); $('#sd_m', root).textContent = right === 'S' ? '✔ Split – gleich stark!' : `✔ Richtig – ${catOf(Math.max(S.va, S.vb))}`; }
+        else { S.streak = 0; S.t += 3; api.sfx('bad'); $('#sd_m', root).textContent = `✘ ${right === 'S' ? 'Es war ein Split' : 'Hand ' + right + ' gewinnt'} (−3 s)`; }
+        hud(); api.timeout(() => S.run && deal(), a === right ? 700 : 1500);
+      };
+      root.addEventListener('click', (e) => { const el = e.target.closest('[data-a]'); if (el) answer(el.dataset.a); });
+      api.on(window, 'keydown', (e) => { const m = { ArrowLeft: 'A', ArrowRight: 'B', ArrowDown: 'S', ' ': 'S' }[e.key]; if (m) { e.preventDefault(); answer(m); } });
+      $('#sd_go', root).onclick = (e) => { e.target.hidden = true; S = { ok: 0, streak: 0, t: 0, run: true }; hud(); deal(); };
+      hud();
+      api.raf((dt) => {
+        if (!S || !S.run) return;
+        S.t += dt; $('#sd_t', root).style.width = Math.max(0, 100 - S.t / DUR * 100) + '%';
+        if (S.t >= DUR) {
+          S.run = false; api.played();
+          const rec = api.score(S.ok), got = api.reward(Math.min(60, S.ok * 2), 'Showdown-Blitz: ' + S.ok + ' richtig');
+          api.sfx('win'); api.finish({ title: '♠️ Zeit um!', text: `${S.ok} richtige Showdowns${rec && S.ok ? '<br>Neuer Rekord! 🏆' : ''}`, coins: got });
+        }
+      });
+    },
+  });
+})();
+
+// ---- games/snake.js ----
+// Sats-Snake: Sats fressen, Bären ausweichen. Pfeiltasten/WASD, Wischen oder Steuerkreuz.
+MG.register({
+  id: 'snake', title: 'Sats-Snake', icon: '🐍', bg: ['#2b6b1f', '#0b2208'], cat: 'geschick', players: '1',
+  desc: 'Friss ⚡ Sats und wachse – aber pass auf die Bären und deinen eigenen Schwanz auf.', added: '2026-11-03', pop: 78,
+  tags: ['snake', 'klassiker', 'reaktion', 'highscore'], unit: 'Sats',
+  help: '<p>Steuern mit <b>Pfeiltasten/WASD</b>, durch <b>Wischen</b> oder mit dem Steuerkreuz. ⚡ = +1, 💎 = +5 (verschwindet nach ein paar Sekunden). Alle 5 Sats taucht ein 🐻 auf – nicht reinfahren!</p><p>Coins: 1 🪙 pro Sat (max. 80 pro Runde).</p>',
+  mount(root, api) {
+    const N = 18, C = 20;
+    root.innerHTML = `<div class="gm center"><div class="hud" id="sn_h"></div><div id="sn_c"></div>
+      <div class="rowc" style="gap:6px"><button class="btn big" data-d="L" type="button">◀</button><div style="display:flex;flex-direction:column;gap:6px"><button class="btn big" data-d="U" type="button">▲</button><button class="btn big" data-d="D" type="button">▼</button></div><button class="btn big" data-d="R" type="button">▶</button></div></div>`;
+    const { g, cv } = api.canvas(N * C, N * C, $('#sn_c', root));
+    const D = { U: [0, -1], D: [0, 1], L: [-1, 0], R: [1, 0] };
+    let S;
+    const free = () => { for (;;) { const p = [rnd(0, N - 1), rnd(0, N - 1)]; if (!S.body.some((b) => b[0] === p[0] && b[1] === p[1]) && !S.bears.some((b) => b[0] === p[0] && b[1] === p[1])) return p; } };
+    const reset = () => { S = { body: [[5, 9], [4, 9], [3, 9]], dir: 'R', q: [], bears: [], sats: 0, acc: 0, alive: true, started: false, gem: null }; S.food = free(); hud(); };
+    const hud = () => { $('#sn_h', root).innerHTML = `<span>⚡ <b>${S.sats}</b></span><span>Länge <b>${S.body.length}</b></span><span>Rekord <b>${api.best() || 0}</b></span>`; };
+    const turn = (d) => { if (!S.alive) return; S.started = true; const last = S.q.length ? S.q[S.q.length - 1] : S.dir; const a = D[d], b = D[last]; if (a[0] === -b[0] && a[1] === -b[1]) return; if (S.q.length < 3) S.q.push(d); };
+    api.on(window, 'keydown', (e) => { const m = { ArrowUp: 'U', ArrowDown: 'D', ArrowLeft: 'L', ArrowRight: 'R', w: 'U', s: 'D', a: 'L', d: 'R' }[e.key]; if (m) { e.preventDefault(); turn(m); } });
+    root.addEventListener('click', (e) => { const d = e.target.dataset.d; if (d) turn(d); });
+    let sx = 0, sy = 0;
+    api.on(cv, 'pointerdown', (e) => { sx = e.clientX; sy = e.clientY; });
+    api.on(cv, 'pointerup', (e) => { const dx = e.clientX - sx, dy = e.clientY - sy; if (Math.max(Math.abs(dx), Math.abs(dy)) < 18) return; turn(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'R' : 'L') : (dy > 0 ? 'D' : 'U')); });
+    const over = () => {
+      S.alive = false; api.sfx('bad'); api.played();
+      const rec = api.score(S.sats), got = api.reward(Math.min(80, S.sats), 'Sats-Snake: ' + S.sats + ' ⚡');
+      api.timeout(() => api.finish({ title: '🐍 Game Over', text: `${S.sats} Sats gefressen${rec && S.sats ? '<br>Neuer Rekord! 🏆' : ''}`, coins: got }), 450);
+    };
+    const step = () => {
+      if (S.q.length) S.dir = S.q.shift();
+      const hd = S.body[0], d = D[S.dir], n = [hd[0] + d[0], hd[1] + d[1]];
+      const hit = (arr) => arr.some((b) => b[0] === n[0] && b[1] === n[1]);
+      if (n[0] < 0 || n[1] < 0 || n[0] >= N || n[1] >= N || hit(S.body.slice(0, -1)) || hit(S.bears)) return over();
+      S.body.unshift(n);
+      if (n[0] === S.food[0] && n[1] === S.food[1]) {
+        S.sats++; api.sfx('coin'); S.food = free();
+        if (S.sats % 5 === 0) S.bears.push(free());
+        if (!S.gem && Math.random() < 0.18) S.gem = { p: free(), t: 6 };
+      } else if (S.gem && n[0] === S.gem.p[0] && n[1] === S.gem.p[1]) { S.sats += 5; api.sfx('good'); S.gem = null; S.body.push(S.body[S.body.length - 1]); }
+      else S.body.pop();
+      hud();
+    };
+    reset();
+    api.raf((dt) => {
+      if (S.alive && S.started) { S.acc += dt; const iv = Math.max(0.065, 0.14 - S.sats * 0.0018); while (S.acc > iv && S.alive) { S.acc -= iv; step(); } if (S.gem && (S.gem.t -= dt) <= 0) S.gem = null; }
+      g.fillStyle = '#0b1a08'; g.fillRect(0, 0, N * C, N * C);
+      for (let x = 0; x < N; x++) for (let y = 0; y < N; y++) if ((x + y) % 2) { g.fillStyle = '#0f220b'; g.fillRect(x * C, y * C, C, C); }
+      g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = (C - 2) + 'px serif';
+      g.fillText('⚡', S.food[0] * C + C / 2, S.food[1] * C + C / 2 + 1);
+      if (S.gem) g.fillText('💎', S.gem.p[0] * C + C / 2, S.gem.p[1] * C + C / 2 + 1);
+      for (const b of S.bears) g.fillText('🐻', b[0] * C + C / 2, b[1] * C + C / 2 + 1);
+      S.body.forEach((b, i) => { g.fillStyle = i ? `hsl(${32 + (i % 6) * 3},95%,${55 - Math.min(20, i)}%)` : '#ffd166'; g.beginPath(); g.roundRect(b[0] * C + 1, b[1] * C + 1, C - 2, C - 2, 6); g.fill(); });
+      const hd = S.body[0]; g.fillStyle = '#1a0e00'; g.fillRect(hd[0] * C + 6, hd[1] * C + 6, 3, 3); g.fillRect(hd[0] * C + 12, hd[1] * C + 6, 3, 3);
+      if (!S.started) { g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(30, 150, N * C - 60, 56); g.fillStyle = '#f5eee2'; g.font = 'bold 16px system-ui'; g.fillText('Richtung wählen zum Starten', N * C / 2, 178); }
+    });
+  },
+});
+
+// ---- games/tictactoe.js ----
+// Tic-Tac-Toe: gegen den Bot (3 Stufen) oder zu zweit am selben Gerät.
+MG.register({
+  id: 'tictactoe', title: 'Tic-Tac-Toe', icon: '❌', bg: ['#2a7a5a', '#0b2a1d'], cat: 'strategie', players: '1–2',
+  desc: 'Der Klassiker: Bulle gegen Bär. Gegen den Bot oder zu zweit.', added: '2026-11-03', pop: 62,
+  tags: ['brett', 'bot', 'klassiker', '2 spieler', 'lokal'], unit: 'Siege',
+  help: '<p>Drei in einer Reihe gewinnt – waagrecht, senkrecht oder diagonal. 🐂 beginnt.</p><p>Coins: Sieg gegen <b>Leicht</b> 4 🪙, gegen <b>Mittel</b> 12 🪙, Unentschieden gegen <b>Unschlagbar</b> 6 🪙. Zu zweit gibt es nur Ruhm.</p>',
+  mount(root, api) {
+    const L = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+    const win = (b) => { for (const l of L) if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return { p: b[l[0]], l }; return b.every(Boolean) ? { p: 0 } : null; };
+    function mm(b, me, turn, depth) {
+      const w = win(b); if (w) return w.p === me ? 10 - depth : w.p ? depth - 10 : 0;
+      let best = turn === me ? -99 : 99;
+      for (let i = 0; i < 9; i++) if (!b[i]) { b[i] = turn; const s = mm(b, me, turn === 1 ? 2 : 1, depth + 1); b[i] = 0; best = turn === me ? Math.max(best, s) : Math.min(best, s); }
+      return best;
+    }
+    const botMove = (b, lvl) => {
+      const free = b.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0);
+      if (lvl === 0 && Math.random() < 0.6) return pick(free);
+      if (lvl === 1 && Math.random() < 0.25) return pick(free);
+      let bi = free[0], bs = -99;
+      for (const i of free) { b[i] = 2; const s = mm(b, 2, 1, 0); b[i] = 0; if (s > bs) { bs = s; bi = i; } }
+      return bi;
+    };
+    const menu = () => {
+      root.innerHTML = `<div class="gm center"><h2>❌ Tic-Tac-Toe</h2><p class="muted">🐂 Bulle gegen 🐻 Bär – wähle deinen Gegner</p>
+        <div class="rowc"><button class="btn big" data-m="0" type="button">🤖 Leicht</button><button class="btn big" data-m="1" type="button">🤖 Mittel</button><button class="btn main big" data-m="2" type="button">🤖 Unschlagbar</button><button class="btn big" data-m="9" type="button">👥 Zu zweit</button></div></div>`;
+      root.onclick = (e) => { const m = e.target.dataset.m; if (m !== undefined) { root.onclick = null; play(+m); } };
+    };
+    const play = (lvl) => {
+      const b = Array(9).fill(0); let turn = 1, over = false;
+      const sym = ['', '🐂', '🐻'];
+      root.innerHTML = `<style>.ttt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(86vw,330px)}.ttt button{aspect-ratio:1;border-radius:14px;border:1px solid #3a2e20;background:#15110d;font-size:clamp(38px,12vw,64px);cursor:pointer;padding:0}.ttt button.w{background:#1d3b2c;border-color:#3ecf8e}</style>
+        <div class="gm center"><div class="hud"><span>${lvl === 9 ? '👥 Zu zweit' : '🤖 ' + ['Leicht', 'Mittel', 'Unschlagbar'][lvl]}</span><span>Siege <b>${api.best() || 0}</b></span></div><div class="msg" id="tt_m"></div><div class="ttt" id="tt_b"></div></div>`;
+      const draw = (wl) => {
+        $('#tt_b', root).innerHTML = b.map((v, i) => `<button type="button" data-i="${i}" class="${wl && wl.includes(i) ? 'w' : ''}" aria-label="Feld ${i + 1}">${sym[v]}</button>`).join('');
+        $('#tt_m', root).textContent = over ? '' : lvl === 9 ? `${sym[turn]} ist dran` : turn === 1 ? 'Du bist dran (🐂)' : '🐻 überlegt …';
+      };
+      const check = () => {
+        const w = win(b); if (!w) return false; over = true; draw(w.l); api.played();
+        let coins = 0, title;
+        if (lvl === 9) title = w.p ? sym[w.p] + ' gewinnt!' : '🤝 Unentschieden';
+        else if (w.p === 1) { title = '🐂 Du gewinnst!'; coins = [4, 12, 0][lvl]; api.score((api.best() || 0) + 1); api.sfx('win'); }
+        else if (w.p === 2) { title = '🐻 Der Bär gewinnt'; api.sfx('lose'); }
+        else { title = '🤝 Unentschieden'; coins = lvl === 2 ? 6 : 0; }
+        const got = coins ? api.reward(coins, 'Tic-Tac-Toe') : 0;
+        api.timeout(() => api.finish({ title, coins: lvl === 9 ? undefined : got }), 700);
+        return true;
+      };
+      $('#tt_b', root).onclick = (e) => {
+        const i = +e.target.dataset.i; if (over || isNaN(i) || b[i] || (lvl !== 9 && turn !== 1)) return;
+        b[i] = turn; api.sfx('click'); turn = turn === 1 ? 2 : 1; draw();
+        if (check() || lvl === 9) return;
+        api.timeout(() => { b[botMove(b, lvl)] = 2; api.sfx('drop'); turn = 1; draw(); check(); }, 420);
+      };
+      draw();
+    };
+    menu();
+  },
+});
+
+// ---- games/tothemoon.js ----
+// To the Moon: Rakete durch Kerzen-Lücken steuern (Tippen/Leertaste = Schub), Sats einsammeln.
+MG.register({
+  id: 'moon', title: 'To the Moon', icon: '🚀', bg: ['#0d3d5a', '#05101d'], cat: 'geschick', players: '1',
+  desc: 'Steuer die Rakete durch die Kerzen-Lücken. Tippen = Schub. Wie weit kommst du?', added: '2026-11-03', pop: 92,
+  tags: ['flappy', 'reaktion', 'rakete', 'chart', 'highscore'], unit: 'Kerzen',
+  help: '<p><b>Tippen</b>, Klicken oder <b>Leertaste</b> gibt Schub nach oben. Flieg durch die Lücken zwischen den roten und grünen Kerzen und sammle ⚡ ein.</p><p>Coins: 1 🪙 pro Kerze + 2 🪙 pro ⚡ (max. 80 pro Flug).</p>',
+  mount(root, api) {
+    root.innerHTML = '<div class="gm center"><div class="hud" id="tm_h"></div></div>';
+    const wrap = $('.gm', root), { g, W, H, cv } = api.canvas(360, 560, wrap);
+    let S;
+    const reset = () => { S = { y: H / 2, vy: 0, t: 0, obs: [], pick: [], score: 0, sats: 0, state: 'ready', spd: 150, next: 0.6, stars: Array.from({ length: 40 }, () => [Math.random() * W, Math.random() * H, Math.random()]), chart: [H * 0.7] }; hud(); };
+    const hud = () => { $('#tm_h', root).innerHTML = `<span>Kerzen <b>${S.score}</b></span><span>⚡ <b>${S.sats}</b></span><span>Rekord <b>${api.best() || 0}</b></span>`; };
+    const flap = (e) => {
+      if (e && e.type === 'keydown' && e.code !== 'Space' && e.key !== 'ArrowUp') return;
+      if (e) e.preventDefault();
+      if (S.state === 'dead') return;
+      if (S.state === 'ready') S.state = 'fly';
+      S.vy = -285; api.sfx('tick');
+    };
+    api.on(cv, 'pointerdown', flap); api.on(window, 'keydown', flap);
+    const die = () => {
+      S.state = 'dead'; api.sfx('bad'); api.played();
+      const rec = api.score(S.score), got = api.reward(Math.min(80, S.score + S.sats * 2), 'To the Moon: ' + S.score + ' Kerzen');
+      api.timeout(() => api.finish({ title: S.score >= 25 ? '🌕 Mondlandung!' : '💥 Rugpull!', text: `${S.score} Kerzen, ${S.sats} ⚡${rec && S.score ? '<br>Neuer Rekord! 🏆' : ''}`, coins: got }), 500);
+    };
+    reset();
+    api.raf((dt) => {
+      S.t += dt;
+      if (S.state === 'fly') {
+        S.vy += 820 * dt; S.y += S.vy * dt; S.spd = 150 + S.score * 3;
+        S.next -= dt;
+        if (S.next <= 0) {
+          const gap = Math.max(130, 175 - S.score * 2), gy = 90 + Math.random() * (H - 180 - gap);
+          S.obs.push({ x: W + 30, gy, gap, w: 34, done: false });
+          if (Math.random() < 0.7) S.pick.push({ x: W + 30 + 17, y: gy + gap / 2, got: false });
+          S.next = Math.max(1.05, 1.55 - S.score * 0.015);
+        }
+        for (const o of S.obs) {
+          o.x -= S.spd * dt;
+          if (!o.done && o.x + o.w < 80) { o.done = true; S.score++; api.sfx('good'); hud(); }
+          if (90 + 14 > o.x && 90 - 14 < o.x + o.w && (S.y - 13 < o.gy || S.y + 13 > o.gy + o.gap)) return die(), true;
+        }
+        for (const p of S.pick) { p.x -= S.spd * dt; if (!p.got && Math.hypot(p.x - 90, p.y - S.y) < 26) { p.got = true; S.sats++; api.sfx('coin'); hud(); } }
+        S.obs = S.obs.filter((o) => o.x > -60); S.pick = S.pick.filter((p) => p.x > -30 && !p.got);
+        if (S.y > H - 12 || S.y < 8) return die(), true;
+      } else if (S.state === 'ready') S.y = H / 2 + Math.sin(S.t * 3) * 10;
+      // Zeichnen
+      const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#05101d'); bg.addColorStop(1, '#14233a'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+      for (const s of S.stars) { s[0] -= (S.state === 'fly' ? S.spd : 30) * dt * (0.1 + s[2] * 0.3); if (s[0] < 0) s[0] = W; g.fillStyle = `rgba(255,255,255,${0.3 + s[2] * 0.6})`; g.fillRect(s[0], s[1], 1.5, 1.5); }
+      g.font = '46px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('🌕', W - 50, 60);
+      for (const o of S.obs) {
+        const cx = o.x + o.w / 2;
+        g.strokeStyle = '#ff8a8a'; g.lineWidth = 2; g.beginPath(); g.moveTo(cx, 0); g.lineTo(cx, o.gy); g.stroke();
+        g.fillStyle = '#e04040'; g.fillRect(o.x, 0, o.w, o.gy - 14);
+        g.strokeStyle = '#8ff0c3'; g.beginPath(); g.moveTo(cx, o.gy + o.gap); g.lineTo(cx, H); g.stroke();
+        g.fillStyle = '#2bb673'; g.fillRect(o.x, o.gy + o.gap + 14, o.w, H);
+      }
+      g.font = '24px serif'; for (const p of S.pick) g.fillText('⚡', p.x, p.y + Math.sin(S.t * 6 + p.x) * 3);
+      g.save(); g.translate(90, S.y); g.rotate(clamp(S.vy / 600, -0.6, 0.9) + Math.PI / 4); g.font = '30px serif'; g.fillText('🚀', 0, 0); g.restore();
+      if (S.state === 'ready') { g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(40, H / 2 + 40, W - 80, 52); g.fillStyle = '#f5eee2'; g.font = 'bold 17px system-ui'; g.fillText('Tippen / Leertaste = Schub', W / 2, H / 2 + 66); }
+    });
+  },
+});
+
+// ---- games/vier.js ----
+// Vier Gewinnt: 7×6, Bot mit Alpha-Beta-Suche (3 Stufen) oder zu zweit.
+MG.register({
+  id: 'vier', title: 'Vier Gewinnt', icon: '🟠', bg: ['#1f3f9b', '#0a1233'], cat: 'strategie', players: '1–2',
+  desc: 'Vier in einer Reihe – gegen den Bot (3 Stufen) oder 1 gegen 1.', added: '2026-11-03', pop: 70,
+  tags: ['brett', 'bot', 'connect four', '2 spieler', 'lokal'], unit: 'Siege',
+  help: '<p>Tippe auf eine Spalte, um deinen Stein fallen zu lassen. Vier eigene Steine in einer Reihe (waagrecht, senkrecht, diagonal) gewinnen.</p><p>Coins für einen Sieg: Leicht 6 🪙 · Mittel 18 🪙 · Schwer 40 🪙.</p>',
+  mount(root, api) {
+    const W = 7, H = 6;
+    const at = (b, c, r) => b[c * H + r];
+    const lines = [];
+    for (let c = 0; c < W; c++) for (let r = 0; r < H; r++) for (const [dc, dr] of [[1, 0], [0, 1], [1, 1], [1, -1]]) {
+      const ec = c + dc * 3, er = r + dr * 3; if (ec < 0 || ec >= W || er < 0 || er >= H) continue;
+      lines.push([0, 1, 2, 3].map((k) => (c + dc * k) * H + (r + dr * k)));
+    }
+    const winner = (b) => { for (const l of lines) { const v = b[l[0]]; if (v && v === b[l[1]] && v === b[l[2]] && v === b[l[3]]) return { p: v, l }; } return b.every(Boolean) ? { p: 0 } : null; };
+    const height = (b, c) => { let r = 0; while (r < H && at(b, c, r)) r++; return r; };
+    const evalB = (b) => {
+      let s = 0;
+      for (let r = 0; r < H; r++) { if (b[3 * H + r] === 2) s += 3; else if (b[3 * H + r] === 1) s -= 3; }
+      for (const l of lines) { let a = 0, o = 0; for (const i of l) { if (b[i] === 2) a++; else if (b[i] === 1) o++; } if (a && o) continue; if (a === 3) s += 5; else if (a === 2) s += 2; if (o === 3) s -= 6; else if (o === 2) s -= 2; }
+      return s;
+    };
+    const ORDER = [3, 2, 4, 1, 5, 0, 6];
+    function ab(b, d, alpha, beta, max) {
+      const w = winner(b); if (w) return w.p === 2 ? 1000 + d : w.p === 1 ? -1000 - d : 0;
+      if (!d) return evalB(b);
+      let best = max ? -1e9 : 1e9;
+      for (const c of ORDER) { const r = height(b, c); if (r >= H) continue; b[c * H + r] = max ? 2 : 1; const s = ab(b, d - 1, alpha, beta, !max); b[c * H + r] = 0;
+        if (max) { best = Math.max(best, s); alpha = Math.max(alpha, s); } else { best = Math.min(best, s); beta = Math.min(beta, s); } if (beta <= alpha) break; }
+      return best;
+    }
+    const botCol = (b, lvl) => {
+      const depth = [2, 4, 6][lvl]; let bc = 3, bs = -1e9;
+      const cand = ORDER.filter((c) => height(b, c) < H);
+      if (lvl === 0 && Math.random() < 0.3) return pick(cand);
+      for (const c of cand) { const r = height(b, c); b[c * H + r] = 2; const s = ab(b, depth - 1, -1e9, 1e9, false) + Math.random() * 0.5; b[c * H + r] = 0; if (s > bs) { bs = s; bc = c; } }
+      return bc;
+    };
+    const menu = () => {
+      root.innerHTML = `<div class="gm center"><h2>🟠 Vier Gewinnt</h2><p class="muted">Orange (du) gegen Blau</p>
+        <div class="rowc"><button class="btn big" data-m="0" type="button">🤖 Leicht</button><button class="btn big" data-m="1" type="button">🤖 Mittel</button><button class="btn main big" data-m="2" type="button">🤖 Schwer</button><button class="btn big" data-m="9" type="button">👥 Zu zweit</button></div></div>`;
+      root.onclick = (e) => { const m = e.target.dataset.m; if (m !== undefined) { root.onclick = null; play(+m); } };
+    };
+    const play = (lvl) => {
+      const b = Array(W * H).fill(0); let turn = 1, over = false, last = -1;
+      root.innerHTML = `<style>.c4{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;background:#1f3f9b;padding:8px;border-radius:14px;width:min(94vw,460px);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+        .c4 button{aspect-ratio:1;border-radius:50%;border:0;background:#0b0907;padding:0;cursor:pointer;box-shadow:inset 0 3px 6px rgba(0,0,0,.7)}
+        .c4 button.p1{background:radial-gradient(circle at 35% 30%,#ffc56b,#f7931a 60%,#b85f05)}.c4 button.p2{background:radial-gradient(circle at 35% 30%,#a8dcff,#2a7bd8 60%,#123f80)}
+        .c4 button.nw{animation:c4d .35s cubic-bezier(.5,0,1,1)}@keyframes c4d{from{transform:translateY(-300%)}}.c4 button.w{outline:3px solid #fff;outline-offset:-3px}</style>
+        <div class="gm center"><div class="hud"><span>${lvl === 9 ? '👥 Zu zweit' : '🤖 ' + ['Leicht', 'Mittel', 'Schwer'][lvl]}</span><span>Siege <b>${api.best() || 0}</b></span></div><div class="msg" id="c4_m"></div><div class="c4" id="c4_b"></div></div>`;
+      const draw = (wl) => {
+        let html = '';
+        for (let r = H - 1; r >= 0; r--) for (let c = 0; c < W; c++) { const i = c * H + r, v = b[i]; html += `<button type="button" data-c="${c}" class="${v ? 'p' + v : ''}${i === last ? ' nw' : ''}${wl && wl.includes(i) ? ' w' : ''}" aria-label="Spalte ${c + 1}"></button>`; }
+        $('#c4_b', root).innerHTML = html;
+        $('#c4_m', root).textContent = over ? '' : lvl === 9 ? (turn === 1 ? '🟠 Orange ist dran' : '🔵 Blau ist dran') : turn === 1 ? 'Du bist dran 🟠' : '🔵 Bot denkt nach …';
+      };
+      const drop = (c, p) => { const r = height(b, c); if (r >= H) return false; b[c * H + r] = p; last = c * H + r; api.sfx('drop'); return true; };
+      const check = () => {
+        const w = winner(b); if (!w) return false; over = true; draw(w.l); api.played();
+        let coins = 0, title;
+        if (lvl === 9) title = w.p === 1 ? '🟠 Orange gewinnt!' : w.p === 2 ? '🔵 Blau gewinnt!' : '🤝 Unentschieden';
+        else if (w.p === 1) { title = '🏆 Du gewinnst!'; coins = [6, 18, 40][lvl]; api.score((api.best() || 0) + 1); api.sfx('win'); }
+        else if (w.p === 2) { title = '🤖 Der Bot gewinnt'; api.sfx('lose'); } else title = '🤝 Unentschieden';
+        const got = coins ? api.reward(coins, 'Vier Gewinnt') : 0;
+        api.timeout(() => api.finish({ title, coins: lvl === 9 ? undefined : got }), 900);
+        return true;
+      };
+      $('#c4_b', root).onclick = (e) => {
+        const c = +e.target.dataset.c; if (over || isNaN(c) || (lvl !== 9 && turn !== 1)) return;
+        if (!drop(c, turn)) return; turn = turn === 1 ? 2 : 1; draw();
+        if (check() || lvl === 9) return;
+        api.timeout(() => { drop(botCol(b, lvl), 2); turn = 1; draw(); check(); }, 380);
+      };
+      draw();
+    };
+    menu();
+  },
+});
+
+// ---- games/wheel.js ----
+// Tägliches Glücksrad: einmal am Tag gratis drehen, danach für 30 🪙.
+MG.register({
+  id: 'wheel', title: 'Tägliches Glücksrad', icon: '🎡', bg: ['#9b1f6b', '#2a0820'], cat: 'casual', players: '1',
+  desc: 'Einmal am Tag gratis drehen – bis zu 200 🪙 Jackpot!', added: '2026-11-03', pop: 95,
+  tags: ['glück', 'täglich', 'bonus', 'gratis', 'daily'], best: null, unit: '',
+  help: '<p>Jeden Tag gibt es <b>einen Gratis-Dreh</b>. Weitere Drehungen kosten 30 🪙. Die Feldgröße zeigt die echte Wahrscheinlichkeit.</p>',
+  mount(root, api) {
+    const SEG = [[5, 20, '#3a2e20'], [10, 20, '#5a3b1c'], [15, 15, '#2a7a5a'], [20, 15, '#1f5a9b'], [25, 12, '#6b2fa8'], [50, 10, '#b85f05'], [100, 6, '#e04040'], [200, 2, '#f2b33d']];
+    const TOT = SEG.reduce((a, s) => a + s[1], 0);
+    let ang = 0, spin = null;
+    root.innerHTML = '<div class="gm center"><div class="hud" id="wh_h"></div><div id="wh_c" style="position:relative"></div><div class="msg" id="wh_m"></div><button class="btn main big" id="wh_go" type="button"></button></div>';
+    const { g, W, H } = api.canvas(360, 360, $('#wh_c', root));
+    const freeToday = () => Wallet.d.spin !== today();
+    const ui = () => { $('#wh_go', root).textContent = freeToday() ? '🎁 Gratis drehen' : '🎡 Drehen (30 🪙)'; $('#wh_go', root).disabled = !!spin; $('#wh_h', root).innerHTML = `<span>Guthaben <b>${fmt(api.coins())}</b> 🪙</span><span>${freeToday() ? 'Gratis-Dreh verfügbar ✨' : 'Gratis-Dreh morgen wieder'}</span>`; };
+    const draw = () => {
+      const cx = W / 2, cy = H / 2, R = 160; g.clearRect(0, 0, W, H);
+      let a = ang;
+      for (const [v, w, col] of SEG) {
+        const da = w / TOT * Math.PI * 2;
+        g.beginPath(); g.moveTo(cx, cy); g.arc(cx, cy, R, a, a + da); g.closePath(); g.fillStyle = col; g.fill(); g.strokeStyle = '#0b0907'; g.lineWidth = 2; g.stroke();
+        g.save(); g.translate(cx, cy); g.rotate(a + da / 2); g.fillStyle = v === 200 ? '#1a0e00' : '#fff'; g.font = `bold ${da > 0.5 ? 20 : 14}px system-ui`; g.textAlign = 'right'; g.textBaseline = 'middle'; g.fillText(v, R - 12, 0); g.restore();
+        a += da;
+      }
+      g.beginPath(); g.arc(cx, cy, 26, 0, Math.PI * 2); g.fillStyle = '#f7931a'; g.fill(); g.fillStyle = '#fff'; g.font = 'bold 22px system-ui'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('₿', cx, cy + 1);
+      g.beginPath(); g.moveTo(cx - 12, 4); g.lineTo(cx + 12, 4); g.lineTo(cx, 30); g.closePath(); g.fillStyle = '#fff'; g.fill(); g.strokeStyle = '#0b0907'; g.stroke();
+    };
+    const result = () => { // Feld unter dem Zeiger (oben = −90°)
+      let p = ((-Math.PI / 2 - ang) % (Math.PI * 2) + Math.PI * 4) % (Math.PI * 2), acc = 0;
+      for (const s of SEG) { acc += s[1] / TOT * Math.PI * 2; if (p < acc) return s[0]; }
+      return SEG[0][0];
+    };
+    $('#wh_go', root).onclick = () => {
+      if (spin) return;
+      if (freeToday()) Wallet.op({ op: 'spin' });
+      else if (!api.spend(30, 'Glücksrad-Dreh')) { toast('Nicht genug 🪙 für einen weiteren Dreh.'); return; }
+      spin = { v: 18 + Math.random() * 8, last: -1 }; $('#wh_m', root).textContent = 'Dreht …'; ui();
+    };
+    ui(); draw();
+    api.raf((dt) => {
+      if (!spin) return;
+      ang += spin.v * dt; spin.v *= Math.pow(0.45, dt); const seg = result(); if (seg !== spin.last) { spin.last = seg; api.sfx('tick'); }
+      draw();
+      if (spin.v < 0.15) {
+        const v = result(); spin = null; api.played();
+        const got = api.reward(v, 'Glücksrad');
+        api.sfx(v >= 100 ? 'win' : 'good'); $('#wh_m', root).innerHTML = v >= 200 ? `🎉 JACKPOT! <b style="color:#f2b33d">+${got} 🪙</b>` : `Du gewinnst <b style="color:#f2b33d">+${got} 🪙</b>`; ui();
+      }
+    });
+  },
+});
+
+// ================================================================
+// Oberfläche: Galerie, Spielansicht, Skin-Shop, Wechselstube, Profil
+// ================================================================
+const UI = {
+  sec: 'games', f: { q: '', cat: 'all', sort: 'pop', pl: 'all' }, shopSlot: 'all', cur: null, api: null, root: null,
+  init() {
+    try { Object.assign(this.f, JSON.parse(localStorage.getItem('guru.mgfilter') || '{}')); } catch (e) { /* egal */ }
+    $('#secnav').onclick = (e) => { const s = e.target.dataset.s; if (s) { Sound.fx('click'); this.show(s); } };
+    $('#pills').onclick = (e) => this.show(e.target.closest('[data-acc]') ? 'me' : 'bank');
+    $('#backBtn').onclick = () => this.close();
+    $('#restartBtn').onclick = () => this.cur && this.open(this.cur.id, true);
+    $('#helpBtn').onclick = () => this.help();
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && this.cur) { if ($('.modal')) $('.modal').remove(); else this.close(); } });
+    window.addEventListener('hashchange', () => this.route());
+    window.addEventListener('message', (e) => { // von der Hauptseite: Reiter gewechselt o. Ä.
+      const d = e.data; if (d && d.gk === 'wallet') { Wallet.load(); Wallet.emit(); }
+    });
+    Wallet.on(() => { this.pills(); if (!this.cur && this.sec !== 'games') this.render(); });
+    this.pills(); this.render(); this.route();
+  },
+  pills(bump) {
+    const d = Wallet.d;
+    $('#pills').innerHTML = `<span class="pill c${bump ? ' bump' : ''}" title="Guru-Coins – damit kaufst du Skins">🪙 ${fmt(d.coins)}</span><span class="pill s" title="Sats aus dem Kart-Rennen">⚡ ${fmt(d.sats)}</span><span class="pill p" title="Poker-Chips-Bonus">♠ ${fmt(d.chips)}</span><span class="pill" data-acc="1" title="Konto">👤 ${Account.on ? esc(Account.s.name) : Account.ready ? 'Einloggen' : 'Gast'}</span>`;
+    $('#pCoins').textContent = '🪙 ' + fmt(d.coins);
+    if (bump) { const p = $('#pCoins'); p.classList.remove('bump'); void p.offsetWidth; p.classList.add('bump'); }
+  },
+  show(s) { this.sec = s; for (const b of $$('#secnav button')) b.classList.toggle('on', b.dataset.s === s); this.render(); window.scrollTo(0, 0); },
+  render() { const m = $('#main'); m.innerHTML = ''; ({ games: () => this.gallery(m), shop: () => this.shop(m), board: () => this.board(m), bank: () => this.bank(m), me: () => this.me(m) })[this.sec](); },
+  // ---------- Galerie ----------
+  sorted() {
+    const { q, cat, sort, pl } = this.f, ql = q.trim().toLowerCase();
+    let list = MG.games.filter((g) => (cat === 'all' || g.cat === cat)
+      && (pl === 'all' || (pl === '1' ? g.players.includes('1') : g.players.includes('2')))
+      && (!ql || (g.title + ' ' + g.desc + ' ' + g.tags.join(' ') + ' ' + CATS[g.cat]).toLowerCase().includes(ql)));
+    const score = (g) => g.pop + MG.plays(g.id) * 4;
+    const by = { pop: (a, b) => score(b) - score(a), new: (a, b) => b.added.localeCompare(a.added) || b.pop - a.pop, az: (a, b) => a.title.localeCompare(b.title, 'de'), mine: (a, b) => MG.plays(b.id) - MG.plays(a.id) || score(b) - score(a) }[sort];
+    return list.sort(by);
+  },
+  gallery(m) {
+    const d = Wallet.d, free = d.spin !== today();
+    m.appendChild(h(`<div class="banner"><div class="bi">${free ? '🎁' : '🪙'}</div><div>${free ? '<b>Dein Gratis-Dreh am Glücksrad wartet!</b> Einmal am Tag bis zu 200 🪙.' : `<b>Heute verdient: ${fmt(d.dayEarn)} / ${DAY_CAP} 🪙</b> aus MiniGames`}<div class="bar"><i style="width:${Math.min(100, d.dayEarn / DAY_CAP * 100)}%"></i></div></div>${free ? '<button class="btn main" type="button" id="bnSpin">🎡 Drehen</button>' : '<button class="btn" type="button" id="bnShop">🛍️ Zum Skin-Shop</button>'}</div>`));
+    $('#bnSpin') && ($('#bnSpin').onclick = () => this.open('wheel'));
+    $('#bnShop') && ($('#bnShop').onclick = () => this.show('shop'));
+    m.appendChild(h(`<div class="tools"><label class="search">🔍<input id="q" type="search" placeholder="Spiel suchen … (z. B. Würfel, Poker, Bot)" value="${esc(this.f.q)}" aria-label="Spiele durchsuchen"></label>
+      <select id="sort" aria-label="Sortieren"><option value="pop">🔥 Beliebt</option><option value="new">🆕 Neu</option><option value="mine">🕹️ Meist gespielt</option><option value="az">🔤 A–Z</option></select>
+      <select id="pl" aria-label="Spieleranzahl"><option value="all">👥 Alle Spielerzahlen</option><option value="1">👤 Einzelspieler</option><option value="2">👥 Zu zweit</option></select></div>`));
+    m.appendChild(h(`<div class="chips" id="cats">${Object.entries(CATS).map(([k, v]) => `<button type="button" class="chip${k === this.f.cat ? ' on' : ''}" data-c="${k}">${v}</button>`).join('')}</div>`));
+    const grid = h('<div class="grid" id="grid"></div>'); m.appendChild(grid);
+    $('#sort').value = this.f.sort; $('#pl').value = this.f.pl;
+    const save = () => { try { localStorage.setItem('guru.mgfilter', JSON.stringify(this.f)); } catch (e) { /* egal */ } };
+    $('#q').oninput = (e) => { this.f.q = e.target.value; this.fillGrid(); save(); };
+    $('#sort').onchange = (e) => { this.f.sort = e.target.value; this.fillGrid(); save(); };
+    $('#pl').onchange = (e) => { this.f.pl = e.target.value; this.fillGrid(); save(); };
+    $('#cats').onclick = (e) => { const c = e.target.dataset.c; if (!c) return; this.f.cat = c; for (const b of $$('#cats .chip')) b.classList.toggle('on', b.dataset.c === c); this.fillGrid(); save(); };
+    grid.onclick = (e) => { const el = e.target.closest('[data-play]'); if (el) { Sound.init(); Sound.fx('click'); this.open(el.dataset.play); } };
+    this.fillGrid();
+  },
+  fillGrid() {
+    const grid = $('#grid'); if (!grid) return;
+    const list = this.sorted(), top = [...MG.games].sort((a, b) => b.pop - a.pop).slice(0, 3).map((g) => g.id);
+    grid.innerHTML = list.length ? list.map((g) => {
+      const best = Wallet.d.hs[g.id];
+      return `<article class="gc"><div class="art" data-play="${g.id}" style="background:linear-gradient(140deg,${g.bg[0]},${g.bg[1]})"><div class="badges">${MG.isNew(g) ? '<span class="bdg new">NEU</span>' : ''}${top.includes(g.id) ? '<span class="bdg hot">BELIEBT</span>' : ''}</div><span>${g.icon}</span></div>
+        <div class="body"><h3>${esc(g.title)}</h3><p>${esc(g.desc)}</p>
+        <div class="meta"><span>${CATS[g.cat]}</span><span>${g.players === '1' ? '👤 Einzelspieler' : g.players === '2' ? '👥 2 Spieler' : '👤/👥 1–2 Spieler'}</span></div>
+        <div class="foot"><span class="best">${best !== undefined && g.best ? '🏆 ' + fmt(best) + ' ' + g.unit : MG.plays(g.id) ? MG.plays(g.id) + '× gespielt' : ''}</span><button class="btn main sm" type="button" data-play="${g.id}">▶ Jetzt spielen</button></div></div></article>`;
+    }).join('') : `<div class="empty" style="grid-column:1/-1">Kein Spiel gefunden 🤷 – andere Suche oder Kategorie probieren.</div>`;
+  },
+  // ---------- Spielansicht ----------
+  route() { const m = location.hash.match(/spiel=([a-z0-9_-]+)/i); if (m && MG.byId[m[1]]) { if (!this.cur || this.cur.id !== m[1]) this.open(m[1], false, true); } else if (this.cur) this.close(true); },
+  open(id, restart, fromHash) {
+    const g = MG.byId[id]; if (!g) return;
+    this.teardown();
+    this.cur = g; $('#play').hidden = false; document.body.style.overflow = 'hidden';
+    this.title();
+    const stage = $('#stage'); stage.innerHTML = '';
+    const root = h('<div class="groot" style="position:relative;width:100%;display:flex;justify-content:center"></div>'); stage.appendChild(root);
+    this.root = root;
+    this.api = makeApi(g, root, { bump: () => this.pills(true), restart: () => this.open(id, true), back: () => this.close(), title: () => this.title() });
+    try { g.mount(root, this.api); } catch (e) { console.error(e); root.innerHTML = `<div class="empty">Das Spiel ist abgestürzt 😵 (${esc(e.message)})</div>`; }
+    if (!fromHash && !restart) { try { history.pushState(null, '', location.pathname + location.search + '#spiel=' + id); } catch (e) { /* egal */ } }
+    try { parent !== window && parent.postMessage({ gk: 'mg', game: id }, '*'); } catch (e) { /* egal */ }
+  },
+  title() { const g = this.cur; if (!g) return; const b = Wallet.d.hs[g.id]; $('#pTitle').innerHTML = `${g.icon} ${esc(g.title)}${g.best && b !== undefined ? `<small>🏆 ${fmt(b)} ${g.unit}</small>` : ''}`; },
+  teardown() { if (this.api) { this.api._close(); this.api = null; } if (this.root) { this.root.remove(); this.root = null; } },
+  close(fromHash) {
+    this.teardown(); this.cur = null; $('#play').hidden = true; document.body.style.overflow = '';
+    if (!fromHash && /spiel=/.test(location.hash)) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { location.hash = ''; } }
+    this.render();
+  },
+  help() { const g = this.cur; if (!g) return; const md = h(`<div class="modal"><div class="box"><h2 style="margin-bottom:8px">${g.icon} ${esc(g.title)}</h2>${g.help || '<p>Viel Spaß!</p>'}<div class="rowc" style="margin-top:12px"><button class="btn main" type="button">Alles klar</button></div></div></div>`); md.onclick = (e) => { if (e.target === md || e.target.tagName === 'BUTTON') md.remove(); }; document.body.appendChild(md); },
+  // ---------- Skin-Shop ----------
+  shop(m) {
+    const d = Wallet.d, deal = dailyDeal();
+    m.appendChild(h(`<div class="banner"><div class="bi">🛍️</div><div><b>Skin-Shop</b> – kauf mit Guru-Coins 🪙 Lackierungen fürs Kart, Kartenrücken und Tische für den Pokerabend, Rahmen und Titel fürs Profil. <span class="muted">Kartenrücken & Tisch wirken schon jetzt in den Karten-MiniGames.</span></div><button class="btn" type="button" id="toBank">💱 Coins eintauschen</button></div>`));
+    $('#toBank').onclick = () => this.show('bank');
+    m.appendChild(h(`<div class="chips" id="slots"><button type="button" class="chip${this.shopSlot === 'all' ? ' on' : ''}" data-sl="all">✨ Alle</button>${Object.entries(SLOTS).map(([k, v]) => `<button type="button" class="chip${this.shopSlot === k ? ' on' : ''}" data-sl="${k}">${v}</button>`).join('')}</div>`));
+    $('#slots').onclick = (e) => { const s = e.target.dataset.sl; if (s) { this.shopSlot = s; this.render(); } };
+    const list = SKINS.filter((s) => this.shopSlot === 'all' || s.slot === this.shopSlot).sort((a, b) => (b.id === deal) - (a.id === deal) || a.slot.localeCompare(b.slot) || a.price - b.price);
+    const grid = h('<div class="shopgrid"></div>'); m.appendChild(grid);
+    grid.innerHTML = list.map((s) => {
+      const own = d.owned[s.id], eq = d.equip[s.slot] === s.id, p = priceOf(s);
+      return `<div class="si r${s.rar}${eq ? ' eq' : ''}">${s.id === deal && !own ? '<span class="deal">−30 % HEUTE</span>' : ''}<div class="pv">${skinPreview(s)}</div>
+        <span class="rar r${s.rar}">${RAR[s.rar]} · ${SLOTS[s.slot].split(' ').slice(1).join(' ')}</span><b>${esc(s.name)}</b>
+        ${own ? `<button class="btn sm${eq ? ' green' : ''}" type="button" data-eq="${s.id}">${eq ? '✔ Angelegt' : 'Anlegen'}</button>` : `<button class="btn sm main" type="button" data-buy="${s.id}" ${d.coins < p ? 'disabled' : ''}>${p !== s.price ? `<s style="opacity:.6">${s.price}</s> ` : ''}${fmt(p)} 🪙 kaufen</button>`}</div>`;
+    }).join('');
+    grid.onclick = (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.buy) {
+        const s = SKIN[b.dataset.buy], p = priceOf(s);
+        if (!b.dataset.sure) { b.dataset.sure = 1; b.textContent = `Sicher? ${p} 🪙`; setTimeout(() => { if (b.isConnected) this.render(); }, 3000); return; }
+        const r = Wallet.op({ op: 'buy', sid: s.id }); if (!r.ok) { toast('Kauf ging nicht: ' + esc(r.err)); this.render(); return; } { Sound.fx('win'); toast(`✨ ${esc(s.name)} gekauft und angelegt!`); this.pills(true); this.render(); }
+      }
+      if (b.dataset.eq) { const s = SKIN[b.dataset.eq]; Wallet.op({ op: 'equip', slot: s.slot, sid: Wallet.d.equip[s.slot] === s.id ? null : s.id }); Sound.fx('click'); this.render(); }
+    };
+  },
+  // ---------- Bestenliste (Discord, vom Konto-Server) ----------
+  boardData: null, boardAt: 0,
+  board(m) {
+    const A = Account;
+    if (!A.ready) { m.appendChild(h('<div class="card"><h2>🏆 BESTENLISTE</h2><p class="muted">Die gemeinsame Bestenliste kommt, sobald der Konto-Server läuft.</p></div>')); return; }
+    const box = h('<div></div>'); m.appendChild(box);
+    const me = A.on ? A.s.name : null;
+    const draw = (d) => {
+      const row = (r, i, unit) => `<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #241c14;${r.n === me ? 'color:var(--gold);font-weight:700' : ''}"><span style="width:28px">${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.n)}</span><b style="font-variant-numeric:tabular-nums">${fmt(r.v)}${unit ? ' ' + unit : ''}</b></div>`;
+      const cards = MG.games.filter((g) => g.best).map((g) => { const L = (d.games || {})[g.id] || []; return `<div class="card"><h2>${g.icon} ${esc(g.title).toUpperCase()}</h2>${L.length ? L.map((r, i) => row(r, i, g.unit)).join('') : '<div class="muted">Noch kein Rekord – sei der Erste!</div>'}</div>`; }).join('');
+      box.innerHTML = `<div class="banner"><div class="bi">🏆</div><div><b>Discord-Bestenliste</b> – die besten ${fmt(d.players || 0)} Stammtisch-Konten. ${me ? `Du bist <b>${esc(me)}</b> – deine Zeilen sind gold.` : 'Mit Konto kommen deine Rekorde auch hier rein.'}<div class="muted" style="font-size:12px">Stand: ${new Date(d.t || Date.now()).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} · aktualisiert sich jede Minute</div></div>${me ? '' : '<button class="btn main" type="button" id="bdAcc">👤 Konto erstellen</button>'}</div>
+        <div class="cols"><div class="card"><h2>💰 FLEISSIGSTE COIN-SAMMLER</h2>${(d.earned || []).map((r, i) => row(r, i, '🪙')).join('') || '<div class="muted">Noch niemand.</div>'}</div>${cards}</div>`;
+      const b = $('#bdAcc', box); if (b) b.onclick = () => this.show('me');
+    };
+    if (this.boardData) draw(this.boardData); else box.innerHTML = '<div class="empty">⏳ Bestenliste wird geladen …</div>';
+    if (Date.now() - this.boardAt > 30000) {
+      this.boardAt = Date.now();
+      A.flush().catch(() => {}).then(() => A.call('board')).then((d) => { if (d && d.ok) { this.boardData = d; if (this.sec === 'board' && !this.cur) draw(d); } })
+        .catch((e) => { if (!this.boardData) box.innerHTML = `<div class="empty">${esc(e.message)}</div>`; this.boardAt = 0; });
+    }
+  },
+  // ---------- Wechselstube ----------
+  spark(vals, col) {
+    const mn = Math.min(...vals), mx = Math.max(...vals), w = 150, hh = 40, k = (v) => hh - 4 - (mx === mn ? 0.5 : (v - mn) / (mx - mn)) * (hh - 8);
+    const pts = vals.map((v, i) => `${(i / (vals.length - 1) * w).toFixed(1)},${k(v).toFixed(1)}`).join(' ');
+    return `<svg width="${w}" height="${hh}" viewBox="0 0 ${w} ${hh}" aria-label="Kursverlauf 7 Tage"><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/><circle cx="${w}" cy="${k(vals[vals.length - 1])}" r="3.5" fill="${col}"/></svg>`;
+  },
+  bank(m) {
+    const d = Wallet.d;
+    const xcard = (cur) => {
+      const wk = Rates.week(cur), r = wk[6], ch = (wk[6] / wk[5] - 1) * 100, per = cur === 'sats' ? 10 : 1000;
+      return `<div class="card"><h2>${CUR[cur].sym} ${CUR[cur].name.toUpperCase()} → 🪙 GURU-COINS</h2>
+        <div class="xrow" style="justify-content:space-between"><div><div class="rate">${per} ${CUR[cur].sym} = ${(r * per).toFixed(2).replace('.', ',')} 🪙</div><div class="${ch >= 0 ? 'up' : 'dn'}" style="font-size:13px;font-weight:700">${ch >= 0 ? '▲' : '▼'} ${Math.abs(ch).toFixed(1).replace('.', ',')} % zu gestern</div></div>${this.spark(wk, ch >= 0 ? '#3ecf8e' : '#ff5a5a')}</div>
+        <div class="muted" style="font-size:13px">Der Kurs ändert sich jeden Tag (±15 %) – wer HODLt und am richtigen Tag tauscht, bekommt mehr. 📈</div>
+        <div class="xrow"><input type="range" min="0" max="${d[cur]}" step="1" value="${d[cur]}" data-x="${cur}" ${d[cur] ? '' : 'disabled'} aria-label="Menge"><b class="rate" id="xv_${cur}"></b></div>
+        <button class="btn main" type="button" data-go="${cur}" ${d[cur] ? '' : 'disabled'}>💱 Tauschen</button> <span class="muted" style="font-size:13px">Du hast ${fmt(d[cur])} ${CUR[cur].sym}</span></div>`;
+    };
+    m.appendChild(h(`<div class="cols">${xcard('sats')}${xcard('chips')}
+      <div class="card"><h2>SO VERDIENST DU ⚡ UND ♠</h2><ul class="howto" style="padding-left:18px;margin:0">
+        <li><b>🏎️ Kart-Rennen:</b> Nach jedem Rennen gibt es ⚡ Sats je nach Platz (1. Platz 30 ⚡ … letzter 3 ⚡) + die eingesammelten Sats. Cup-Sieg = +50 ⚡.</li>
+        <li><b>♠ Pokerabend:</b> Jede gewonnene Hand bringt Bonus-Chips (10 % vom Pot, max. 2 000 ♠), ein Turniersieg +5 000 ♠. Deine Tisch-Chips bleiben dabei unangetastet.</li>
+        <li><b>🎮 MiniGames:</b> direkt 🪙 Guru-Coins, bis ${DAY_CAP} pro Tag (heute ${fmt(d.dayEarn)}).</li></ul>
+        <p class="muted" style="font-size:12.5px;margin-bottom:0">Gutschriften kommen nur an, wenn du Kart bzw. Poker über die Hauptseite (Reiter oben) spielst. Pro Tag höchstens 1 000 ⚡ und 50 000 ♠. Mit Konto landet alles automatisch im Konto.</p>
+        ${PARAMS.has('demo') ? '<button class="btn sm" type="button" id="demo">🧪 Test: +100 ⚡ und +5 000 ♠</button>' : ''}</div>
+      <div class="card"><h2>VERLAUF</h2><div class="log">${d.log.map((l) => `<div><span class="muted">${new Date(l.t).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}</span><span>${esc(l.why)}</span><span class="${l.n >= 0 ? 'up' : 'dn'}">${l.n >= 0 ? '+' : '−'}${fmt(Math.abs(l.n))} ${CUR[l.cur].sym}</span></div>`).join('') || '<div class="muted">Noch nichts passiert.</div>'}</div></div></div>`));
+    const upd = (cur) => { const r = $(`[data-x="${cur}"]`), n = +r.value; $('#xv_' + cur).textContent = `${fmt(n)} ${CUR[cur].sym} → ${fmt(Math.floor(n * Rates.of(cur)))} 🪙`; };
+    for (const r of $$('[data-x]')) { r.oninput = () => upd(r.dataset.x); upd(r.dataset.x); }
+    m.onclick = (e) => {
+      const go = e.target.dataset.go;
+      if (go) {
+        const n = +$(`[data-x="${go}"]`).value, r = Wallet.op({ op: 'exchange', cur: go, n });
+        if (!r.ok) { toast('Zu wenig für 1 🪙 – Regler weiter nach rechts.'); return; }
+        Sound.fx('coin'); toast(`💱 +${fmt(r.got)} 🪙 eingetauscht`); this.pills(true); this.render();
+      }
+      if (e.target.id === 'demo') { Wallet.credit('sats', 100, 'Test-Gutschrift Kart'); Wallet.credit('chips', 5000, 'Test-Gutschrift Poker'); }
+    };
+  },
+  // ---------- Konto & Profil ----------
+  me(m) {
+    const d = Wallet.d, fr = SKIN[d.equip.frame], tt = SKIN[d.equip.title], A = Account;
+    const nm = A.on ? A.s.name : playerName();
+    const eqList = Object.entries(SLOTS).map(([k, v]) => `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #241c14"><span class="muted">${v}</span><b>${d.equip[k] ? esc(SKIN[d.equip[k]].name) : '–'}</b></div>`).join('');
+    m.appendChild(h(`<div class="cols">
+      <div class="card" id="accCard"></div>
+      <div class="card" style="text-align:center"><div class="frame" style="margin:6px auto 12px;width:86px;height:86px;font-size:42px;${fr ? `box-shadow:0 0 0 5px ${fr.ring},0 0 22px ${fr.ring}` : 'box-shadow:0 0 0 3px #3a2e20'}">${fr ? fr.icon : '🙂'}</div>
+        <h2 style="font-size:20px;color:var(--txt);letter-spacing:0">${esc(nm)}${A.on || nm === 'Gast' ? '' : ' <span class="muted" style="font-size:13px">(Gast)</span>'}</h2>${tt ? `<div class="ttl r${tt.rar}" style="display:inline-block;margin-top:6px">${esc(tt.txt)}</div>` : '<div class="muted" style="margin-top:6px">Noch kein Titel – im Shop gibt\'s welche.</div>'}
+        <div class="rowc" style="margin-top:12px"><span class="pill c">🪙 ${fmt(d.coins)}</span><span class="pill">🕹️ ${fmt(d.stats.games)} Spiele</span><span class="pill">💰 ${fmt(d.stats.earned)} verdient</span><span class="pill">🎒 ${Object.keys(d.owned).length}/${SKINS.length} Skins</span></div></div>
+      <div class="card"><h2>DEINE REKORDE</h2>${MG.games.filter((g) => g.best).map((g) => `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #241c14"><span>${g.icon} ${esc(g.title)}</span><b>${d.hs[g.id] !== undefined ? fmt(d.hs[g.id]) + ' ' + g.unit : '<span class="muted">–</span>'}</b></div>`).join('')}</div>
+      <div class="card"><h2>ANGELEGT</h2>${eqList}<div style="margin-top:12px"><button class="btn sm" type="button" id="wipe">🗑️ ${A.on ? 'Fortschritt im Konto zurücksetzen' : 'Gast-Daten zurücksetzen'}</button></div></div></div>`));
+    $('#wipe').onclick = (e) => {
+      const b = e.target;
+      if (!b.dataset.sure) { b.dataset.sure = 1; b.textContent = '⚠️ Wirklich alles löschen? Nochmal klicken'; return; }
+      Wallet.op({ op: 'wipe' }); toast('Zurückgesetzt – 100 🪙 Startbonus.'); this.render();
+    };
+    this.accCard($('#accCard'));
+  },
+  accMode: 'login',
+  accCard(el) {
+    const A = Account, inp = (id, label, type, ac, extra = '') => `<label class="fld"><span>${label}</span><input id="${id}" type="${type}" autocomplete="${ac}" ${extra}></label>`;
+    const style = `<style>.fld{display:flex;flex-direction:column;gap:4px;margin:8px 0;font-size:13px;color:var(--mut)}.fld input{background:#0f0c09;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 12px;font:inherit;font-size:15px}.fld input:focus{outline:0;border-color:var(--gold)}
+      .acctabs{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}.acctabs button{appearance:none;border:1px solid var(--line);background:none;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:13px}.acctabs button.on{border-color:var(--gold);color:var(--gold)}
+      .err{color:var(--red);font-weight:600;min-height:18px;font-size:13px}.okm{color:var(--green);font-weight:600;font-size:13px}</style>`;
+    if (!A.ready) {
+      el.innerHTML = style + `<h2>👤 KONTO</h2><p>Mit einem Konto (Name + Passwort, E-Mail freiwillig) liegen deine Coins, Skins und Rekorde sicher auf dem Server – auf jedem Gerät gleich, und bereit für die Discord-Bestenliste.</p><p class="muted">Der Konto-Server wird gerade eingerichtet – bis dahin spielst du als Gast in diesem Browser. Dein Gast-Fortschritt wird beim Registrieren übernommen.</p>`;
+      return;
+    }
+    if (A.on) {
+      el.innerHTML = style + `<h2>👤 DEIN KONTO</h2>
+        <div style="display:flex;justify-content:space-between;padding:4px 0"><span class="muted">Name</span><b>${esc(A.s.name)}</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0"><span class="muted">E-Mail</span><b>${A.s.email ? esc(A.s.email) : '<span class="muted">keine</span>'}</b></div>
+        <p class="muted" style="font-size:12.5px">Coins, Skins und Rekorde werden automatisch gespeichert und sind auf jedem Gerät gleich, auf dem du dich einloggst.</p>
+        <div class="rowc" style="justify-content:flex-start"><button class="btn sm" data-m="email" type="button">✉️ E-Mail ${A.s.email ? 'ändern' : 'hinzufügen'}</button><button class="btn sm" data-m="pw" type="button">🔑 Passwort ändern</button><button class="btn sm" id="accOut" type="button">🚪 Abmelden</button><button class="btn sm" data-m="del" type="button">🗑️ Konto löschen</button></div>
+        <form id="accForm" hidden></form><div class="err" id="accErr"></div>`;
+      $('#accOut', el).onclick = async () => { await A.logout(); toast('Abgemeldet – du spielst wieder als Gast.'); this.pills(); this.render(); };
+      el.onclick = (e) => {
+        const md = e.target.dataset.m; if (!md) return;
+        const f = $('#accForm', el); f.hidden = false; f.dataset.m = md; $('#accErr', el).textContent = '';
+        f.innerHTML = {
+          email: inp('a_email', 'Neue E-Mail (leer lassen = entfernen)', 'email', 'email', `value="${esc(A.s.email)}"`) + inp('a_pw', 'Dein Passwort zur Bestätigung', 'password', 'current-password', 'required'),
+          pw: inp('a_pw', 'Altes Passwort', 'password', 'current-password', 'required') + inp('a_npw', 'Neues Passwort (mind. 6 Zeichen)', 'password', 'new-password', 'required minlength="6"'),
+          del: '<p class="err" style="margin:6px 0">Das Konto und alle Coins, Skins und Rekorde werden endgültig gelöscht.</p>' + inp('a_pw', 'Passwort zur Bestätigung', 'password', 'current-password', 'required'),
+        }[md] + `<button class="btn ${md === 'del' ? 'red' : 'main'}" type="submit">${md === 'del' ? 'Endgültig löschen' : 'Speichern'}</button>`;
+        f.onsubmit = (ev) => { ev.preventDefault(); this.accSubmit(md, el); };
+      };
+      return;
+    }
+    const mode = this.accMode;
+    el.innerHTML = style + `<h2>👤 KONTO</h2><div class="acctabs"><button type="button" data-t="login" class="${mode === 'login' ? 'on' : ''}">Einloggen</button><button type="button" data-t="reg" class="${mode === 'reg' ? 'on' : ''}">Registrieren</button><button type="button" data-t="forgot" class="${mode.startsWith('forgot') ? 'on' : ''}">Passwort vergessen</button></div>
+      <form id="accForm" autocomplete="on">${{
+        login: inp('a_id', 'Name oder E-Mail', 'text', 'username', 'required maxlength="80"') + inp('a_pw', 'Passwort', 'password', 'current-password', 'required') + '<button class="btn main" type="submit">Einloggen</button>',
+        reg: inp('a_name', 'Name (2–18 Zeichen, so sehen dich die anderen)', 'text', 'username', 'required minlength="2" maxlength="18"') + inp('a_pw', 'Passwort (mind. 6 Zeichen)', 'password', 'new-password', 'required minlength="6"') + inp('a_pw2', 'Passwort wiederholen', 'password', 'new-password', 'required minlength="6"') + inp('a_email', 'E-Mail (freiwillig – nur fürs Zurücksetzen des Passworts)', 'email', 'email', 'maxlength="80"')
+          + `<p class="muted" style="font-size:12px;margin:4px 0 10px">Dein Gast-Fortschritt in diesem Browser (Coins bis 1 500, Skins, Rekorde) wird ins Konto übernommen. Die E-Mail wird nur fürs Passwort-Zurücksetzen gespeichert und nirgends angezeigt.</p><button class="btn main" type="submit">Konto erstellen</button>`,
+        forgot: inp('a_id', 'Name oder E-Mail', 'text', 'username', 'required') + '<p class="muted" style="font-size:12px">Geht nur, wenn im Konto eine E-Mail hinterlegt ist. Du bekommst einen 6-stelligen Code.</p><button class="btn main" type="submit">Code schicken</button>',
+        forgot2: `<p class="okm">Falls eine E-Mail hinterlegt ist, ist der Code unterwegs (Spam-Ordner prüfen).</p>` + inp('a_code', 'Code aus der E-Mail', 'text', 'one-time-code', 'required inputmode="numeric" maxlength="6"') + inp('a_npw', 'Neues Passwort (mind. 6 Zeichen)', 'password', 'new-password', 'required minlength="6"') + '<button class="btn main" type="submit">Passwort setzen</button>',
+      }[mode]}</form><div class="err" id="accErr"></div>`;
+    $('.acctabs', el).onclick = (e) => { const t = e.target.dataset.t; if (t) { this.accMode = t; this.accCard(el); } };
+    $('#accForm', el).onsubmit = (ev) => { ev.preventDefault(); this.accSubmit(mode, el); };
+  },
+  async accSubmit(mode, el) {
+    const A = Account, v = (id) => { const x = $('#' + id, el); return x ? x.value.trim() : ''; }, pwv = (id) => { const x = $('#' + id, el); return x ? x.value : ''; };
+    const err = $('#accErr', el), btn = $('#accForm button[type=submit]', el);
+    err.textContent = ''; btn.disabled = true; const old = btn.textContent; btn.textContent = '⏳ …';
+    try {
+      let r;
+      if (mode === 'login') r = await A.login(v('a_id'), pwv('a_pw'));
+      else if (mode === 'reg') {
+        if (pwv('a_pw') !== pwv('a_pw2')) throw new Error('Die beiden Passwörter sind nicht gleich.');
+        r = await A.register(v('a_name'), pwv('a_pw'), v('a_email'));
+      } else if (mode === 'forgot') { this.accId = v('a_id'); r = await A.call('resetReq', { id: this.accId }); if (r.ok) { this.accMode = 'forgot2'; this.accCard(el); return; } }
+      else if (mode === 'forgot2') { r = await A.call('resetDo', { id: this.accId, code: v('a_code'), npw: pwv('a_npw') }); if (r.ok) { A.stashGuest(); A.setSession(r); } }
+      else if (mode === 'email') { r = await A.call('setEmail', { token: A.s.token, pw: pwv('a_pw'), email: v('a_email') }); if (r.ok) { A.s.email = r.user.email || ''; ls.set(SKEY, A.s); } }
+      else if (mode === 'pw') r = await A.call('changePw', { token: A.s.token, pw: pwv('a_pw'), npw: pwv('a_npw') });
+      else if (mode === 'del') { r = await A.call('delete', { token: A.s.token, pw: pwv('a_pw') }); if (r.ok) { A.s = null; ls.set(SKEY, null); A.lost('Konto gelöscht.'); } }
+      if (!r || !r.ok) throw new Error((r && r.msg) || 'Das hat nicht geklappt.');
+      Sound.fx('good');
+      toast({ login: `Willkommen zurück, ${esc(A.s && A.s.name)}! 👋`, reg: `Konto „${esc(A.s && A.s.name)}“ erstellt! 🎉`, forgot2: 'Neues Passwort gesetzt – du bist eingeloggt.', email: 'E-Mail gespeichert.', pw: 'Passwort geändert.', del: 'Konto gelöscht.' }[mode] || 'Erledigt.');
+      this.accMode = 'login'; this.pills(); this.render();
+    } catch (e) { err.textContent = e.message; Sound.fx('bad'); btn.disabled = false; btn.textContent = old; }
+  },
+};
+UI.init();
+Account.refresh();
+window.MG = MG; window.Wallet = Wallet; window.UI = UI; window.Account = Account; // für Tests und künftige Erweiterungen
+
+</script>
+</body>
+</html>
