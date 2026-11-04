@@ -44,20 +44,21 @@ body.race #edge{display:block}#edge:hover{background:rgba(247,147,26,.8);height:
   <iframe id="f-minigames" title="MiniGame Center" allow="fullscreen; autoplay"></iframe>
 </div>
 <script>
-// Drei Reiter: Poker, Kart, MiniGames. #rennen öffnet direkt das Rennen, #rennen=raumcode einen privaten Raum, #minigames das MiniGame Center.
+// Drei Reiter: Poker, Kart, MiniGames. #rennen öffnet direkt das Rennen, #rennen=raumcode einen privaten Raum, #minigames das MiniGame Center,
+// #minigames=stammtisch den Online-Stammtisch, #minigames=raumcode einen privaten Online-Raum (auch raumcode-spiel), #minigames=spiel ein Spiel.
 (function () {
   var frames = { poker: document.getElementById('f-poker'), rennen: document.getElementById('f-rennen'), minigames: document.getElementById('f-minigames') };
   var src = { poker: 'poker.html', rennen: 'rennen.html', minigames: 'minigames.html' };
   var cur = null;
   function parseHash() {
     var h = decodeURIComponent(location.hash.replace(/^#/, ''));
-    var m = h.match(/^(poker|rennen|minigames)(?:=([a-z0-9-]{1,24}))?$/i);
+    var m = h.match(/^(poker|rennen|minigames)(?:=([a-z0-9_-]{1,32}))?$/i);
     return m ? { tab: m[1].toLowerCase(), room: m[2] ? m[2].toLowerCase() : '' } : { tab: 'poker', room: '' };
   }
   function show(tab, room) {
     var f = frames[tab];
-    if (!f.getAttribute('src')) f.setAttribute('src', src[tab] + (tab === 'rennen' && room ? '?raum=' + encodeURIComponent(room) : tab === 'minigames' && room ? '#spiel=' + room : ''));
-    else if (tab === 'rennen' && room && f.contentWindow) f.contentWindow.postMessage({ gk: 'room', room: room }, '*');
+    if (!f.getAttribute('src')) f.setAttribute('src', src[tab] + (tab === 'rennen' && room ? '?raum=' + encodeURIComponent(room) : tab === 'minigames' && room ? '#hub=' + encodeURIComponent(room) : ''));
+    else if ((tab === 'rennen' || tab === 'minigames') && room && f.contentWindow) f.contentWindow.postMessage({ gk: 'room', room: room }, '*');
     for (var k in frames) frames[k].classList.toggle('on', k === tab);
     var bs = document.querySelectorAll('.tab');
     for (var i = 0; i < bs.length; i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-t') === tab);
@@ -125,6 +126,11 @@ body.race #edge{display:block}#edge:hover{background:rgba(247,147,26,.8);height:
     if (!d || typeof d !== 'object') return;
     var fromRace = e.source === frames.rennen.contentWindow, fromPoker = e.source === frames.poker.contentWindow;
     if (d.gk === 'earn' && (fromRace || fromPoker)) { credit(fromRace ? 'sats' : 'chips', d.n, d.why); paint(); return; }
+    // MiniGame Center meldet seinen Online-Raum → Adresse der Hauptseite mitführen (Stammtisch = #minigames)
+    if (e.source === frames.minigames.contentWindow) {
+      if (d.gk === 'mgroom' && cur === 'minigames') setHash('minigames' + (d.room && !/^stammtisch/.test(d.room) ? '=' + String(d.room).replace(/[^a-z0-9_-]/gi, '').slice(0, 32) : ''));
+      return;
+    }
     if (!fromRace) return;
     if (d.gk === 'race') document.body.classList.toggle('race', !!d.on && cur === 'rennen');
     if (d.gk === 'room' && cur === 'rennen') setHash('rennen' + (d.room && d.room !== 'stammtisch' ? '=' + d.room : ''));
