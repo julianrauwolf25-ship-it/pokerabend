@@ -619,7 +619,14 @@ function skinPreview(s) {
 const dailyDeal = () => GuruCore.dailyDeal(new Date());
 const priceOf = (s) => GuruCore.priceOf(s.id, new Date());
 // Kartenrücken für die Karten-MiniGames (angelegter Skin oder Standard)
-function cardBack() { const s = SKIN[Wallet.d.equip.cards]; return s ? s.bg : 'repeating-linear-gradient(45deg,#3a2e20 0 6px,#4a3a28 6px 12px)'; }
+const BACK_DEFAULT = 'repeating-linear-gradient(45deg,#3a2e20 0 6px,#4a3a28 6px 12px)', FELT_DEFAULT = 'radial-gradient(#1f7a4a,#0d3d24)';
+const SHOW_SLOTS = ['cards', 'felt', 'frame', 'title'];
+// Skins, die die anderen im Online-Spiel sehen (nur bekannte IDs mit passendem Platz – alles andere fliegt raus)
+function cleanSkins(x) { const o = {}; if (x && typeof x === 'object') for (const k of SHOW_SLOTS) { const s = typeof x[k] === 'string' && SKIN[x[k]]; if (s && s.slot === k) o[k] = s.id; } return o; }
+function mySkins() { return cleanSkins((Wallet.d && Wallet.d.equip) || {}); }
+const backOf = (sk) => { const s = sk && SKIN[sk.cards]; return s ? s.bg : BACK_DEFAULT; };
+const feltOf = (sk) => { const s = sk && SKIN[sk.felt]; return s ? s.bg : FELT_DEFAULT; };
+function cardBack() { return backOf(mySkins()); }
 
 // ---------- GameRegistry ----------
 // Ein neues Spiel = eine Datei in src/games/, die MG.register({...}) aufruft. Felder:
@@ -931,7 +938,7 @@ var MPCore = (function () {
 // ================================================================
 const MG_NS = 'guruhalle-mg-v1-';
 const NET_VER = 1;
-const MG_BUILD = 202611041522;
+const MG_BUILD = 202611050715;
 const STAMMTISCH = 'stammtisch';
 const CODE_ABC = 'abcdefghjkmnpqrstuvwxyz23456789'; // ohne i, l, o, 0, 1 (verwechselbar)
 const Net = {
@@ -1065,13 +1072,16 @@ class MPPlay {
     const f = $('.mp-chatrow', o.root); if (f) f.onsubmit = (ev) => { ev.preventDefault(); const i = $('input', f); if (o.chat) o.chat(i.value); i.value = ''; i.blur(); };
     const capi = this.capi = makeApi(this.g, this.el.stage, UI.hooks(this.g));
     const self = this;
+    // Tisch-Skin (Stapel, Filz, gemeinsame Karten): online der des Hosts, offline der eigene
+    this.tsk = cleanSkins(o.tableSkin || (on ? null : mySkins()));
+    this.skinOf = (p) => { const s = o.seats[p]; if (!s || s.bot) return this.tsk; const k = s.sk ? cleanSkins(s.sk) : (on ? {} : mySkins()); return Object.assign({}, this.tsk, k.cards ? { cards: k.cards } : {}, k.felt ? { felt: k.felt } : {}, k.frame ? { frame: k.frame } : {}, k.title ? { title: k.title } : {}); };
     let lastIn = '', lastInT = 0, inTimer = 0;
     const api = this.api = Object.create(capi);
     // Getter mit defineProperties (Object.assign würde sie einmalig auswerten → nicht live, v. a. am selben Gerät)
     Object.defineProperties(api, {
       me: { get: () => self.me, enumerable: true },
       spectator: { get: () => self.me < 0, enumerable: true },
-      players: { get: () => { const b = (self.e && self.e.bots) || []; return o.seats.map((s, i) => ({ name: s.name, bot: !!(s.bot || b[i]), me: i === self.me, local: !!s.local, color: SEAT_COL[i % 8], gone: !!s.gone })); }, enumerable: true },
+      players: { get: () => { const b = (self.e && self.e.bots) || []; return o.seats.map((s, i) => ({ name: s.name, bot: !!(s.bot || b[i]), me: i === self.me, local: !!s.local, color: SEAT_COL[i % 8], gone: !!s.gone, skin: self.skinOf(i) })); }, enumerable: true },
       view: { get: () => self.e && self.e.view, enumerable: true },
       info: { get: () => self.e, enumerable: true },
       over: { get: () => self.e && self.e.over, enumerable: true },
@@ -1081,7 +1091,11 @@ class MPPlay {
       mode: o.mode, isHost: !!o.isHost, code: o.code || '',
       color: (p) => SEAT_COL[p % 8],
       name: (p) => (o.seats[p] ? o.seats[p].name : '?'),
-      cardBack: () => cardBack(),
+      // Skins: ohne Platz = Tisch (Skin des Hosts, offline der eigene); mit Platz = Skin dieses Spielers (Bots → Tisch)
+      cardBack: (p) => backOf(p == null ? self.tsk : self.skinOf(p)),
+      felt: () => feltOf(self.tsk),
+      skin: (p) => (p == null ? self.tsk : self.skinOf(p)),
+      cardHtml: (c, cls = '', p) => (c ? capi.cardHtml(c, cls) : `<div class="pc back ${cls}" style="--cb:${backOf(p == null ? self.tsk : self.skinOf(p))}"></div>`),
       isMyTurn() { const v = self.e; return !!(v && self.me >= 0 && !v.over && !v.pausing && v.turn.indexOf(self.me) >= 0); },
       timeLeft() { const v = self.e; return v && v.left != null ? Math.max(0, v.left - (Date.now() - v._at)) : null; },
       ping: () => (o.ping ? o.ping() : 0),
@@ -1406,7 +1420,7 @@ const Room = {
     this.L = {
       v: NET_VER, b: Net.build, room: this.room, hostId: peer.id, phase: 'lobby', game: old ? old.game : null, round: old ? old.round || 0 : 0,
       set: old ? old.set : null, seats: null, chat: old ? (old.chat || []).slice(-30) : [], done: false,
-      players: [{ id: peer.id, name: mpName(), ready: true, vote: null }],
+      players: [{ id: peer.id, name: mpName(), ready: true, vote: null, sk: mySkins() }],
     };
     if (this.L.game && !MG.byId[this.L.game]) { this.L.game = null; this.L.set = null; }
     if (old) this.note = '👑 Du bist jetzt Host' + (old.phase === 'play' && !old.done ? ' – die laufende Runde wurde leider abgebrochen.' : '.');
@@ -1443,11 +1457,12 @@ const Room = {
           setTimeout(() => { try { c.conn.close(); } catch (e) { /* egal */ } }, 600); return;
         }
         const name = this.uniqueName(cleanName(d.name) || 'Gast', pid);
-        if (P) { P.name = name; this.push(); return; }
+        const sk = cleanSkins(d.sk);
+        if (P) { P.name = name; P.sk = sk; this.push(); return; }
         if (L.players.length >= 16) { Net.send(c.conn, { t: 'err', text: 'Der Raum ist voll (16 Leute).' }); return; }
         const running = L.phase === 'play' && !L.done;
         const seatIdx = running && L.seats ? L.seats.findIndex((s) => s.gone && s.name.toLowerCase() === name.toLowerCase()) : -1;
-        L.players.push({ id: pid, name, ready: running, vote: null });
+        L.players.push({ id: pid, name, ready: running, vote: null, sk });
         c.name = name;
         Net.send(c.conn, { t: 'welcome', id: pid, b: Net.build, room: L });
         if (b > Net.build) { Net.send(c.conn, { t: 'old', b: Net.build }); this.outdated(b); }
@@ -1462,6 +1477,7 @@ const Room = {
         if (!P) return;
         if (d.name) P.name = this.uniqueName(cleanName(d.name) || P.name, pid);
         if (typeof d.ready === 'boolean') P.ready = d.ready;
+        if (d.sk && typeof d.sk === 'object') P.sk = cleanSkins(d.sk);
         if (d.vote === null || (typeof d.vote === 'string' && MG.byId[d.vote] && MG.byId[d.vote].mp)) P.vote = d.vote;
         this.push(); return;
       }
@@ -1542,7 +1558,9 @@ const Room = {
     const L = this.L; if (!this.isHost || this.cantStart(L)) return;
     if (L.phase === 'play' && !L.done) return;
     const g = MG.byId[L.game], mp = g.mp, pl = this.seatPlan(L);
-    const seats = pl.humans.map((p) => ({ id: p.id, name: p.name }));
+    const seats = pl.humans.map((p) => ({ id: p.id, name: p.name, sk: cleanSkins(p.sk) }));
+    const hostP = L.players.find((p) => p.id === L.hostId);
+    L.tsk = cleanSkins(hostP ? hostP.sk : mySkins());
     const used = new Set(seats.map((s) => s.name)); let bi = 0;
     while (seats.length < pl.total) { const nm = BOT_NAMES[(bi + L.round) % BOT_NAMES.length]; bi++; if (used.has(nm) && bi < 40) continue; used.add(nm); seats.push({ id: 'bot' + seats.length, name: nm, bot: true }); }
     L.seats = seats; L.phase = 'play'; L.done = false; L.round = (L.round || 0) + 1;
@@ -1641,7 +1659,7 @@ const Room = {
       conn.on('error', () => { if (ep !== this.epoch) return; if (!done) fin('stale'); else this.lostHost('error'); });
       peer.on('disconnected', () => setTimeout(() => { try { if (!peer.destroyed) peer.reconnect(); } catch (e) { /* egal */ } }, 2000));
       peer.on('error', () => { /* egal */ });
-      Net.send(conn, { t: 'hello', v: NET_VER, b: Net.build, name: mpName() });
+      Net.send(conn, { t: 'hello', v: NET_VER, b: Net.build, name: mpName(), sk: mySkins() });
     });
   },
   clientRecv(d) {
@@ -1696,7 +1714,7 @@ const Room = {
     setTimeout(() => { if (ep === this.epoch) this.connect(old, 'host'); }, (why === 'reload' ? 1200 : 400) + rank * 900 + Math.random() * 300);
   },
   sendSet(o) {
-    if (this.isHost) { const P = this.L && this.L.players.find((p) => p.id === this.myId); if (!P) return; if (o.name) P.name = this.uniqueName(cleanName(o.name) || P.name, this.myId); if ('ready' in o) P.ready = !!o.ready; if ('vote' in o) P.vote = o.vote; this.push(); }
+    if (this.isHost) { const P = this.L && this.L.players.find((p) => p.id === this.myId); if (!P) return; if (o.name) P.name = this.uniqueName(cleanName(o.name) || P.name, this.myId); if ('ready' in o) P.ready = !!o.ready; if ('vote' in o) P.vote = o.vote; if (o.sk) P.sk = cleanSkins(o.sk); this.push(); }
     else Net.send(this.hostConn, Object.assign({ t: 'set' }, o));
   },
   chat(text) { text = String(text || '').trim(); if (!text) return; if (this.isHost) { const P = this.L.players.find((p) => p.id === this.myId); this.addChat(P ? P.name : 'Host', text); } else Net.send(this.hostConn, { t: 'chat', text }); },
@@ -1724,7 +1742,7 @@ const Room = {
     const st = UI.openStage(g, { back: () => this.backFromPlay() }); if (!st) return;
     this.playRound = L.round;
     this.play = new MPPlay({
-      g, root: st.root, me: watch ? -1 : seat, mode: 'online', seats: L.seats, isHost: this.isHost, code: this.room, turnTime: MPCore.turnTimeOf(g.mp, (L.set && L.set.opts) || {}),
+      g, root: st.root, me: watch ? -1 : seat, mode: 'online', seats: L.seats, tableSkin: L.tsk || {}, isHost: this.isHost, code: this.room, turnTime: MPCore.turnTimeOf(g.mp, (L.set && L.set.opts) || {}),
       send: (a) => { if (this.isHost) return this.host ? this.host.act(this.mySeat(), a) : { error: 'Kein Spiel' }; Net.send(this.hostConn, { t: 'act', a }); return { sent: true }; },
       input: (i, s) => { if (this.isHost) { if (this.host) this.host.input(s != null ? s : this.mySeat(), i); } else Net.send(this.hostConn, { t: 'in', i }); },
       endButtons: () => (this.isHost ? [['again', '⟳ Nochmal', true], ['lobby', '🏠 Zur Lobby']] : [[null, '⏳ Host entscheidet: nochmal oder Lobby'], ['lobbyme', '🏠 Zur Lobby']]),
@@ -1826,7 +1844,8 @@ const Room = {
     const rows = L.players.map((p, i) => {
       const vg = p.vote && MG.byId[p.vote];
       const inRound = L.phase === 'play' && seatOf(p.id) >= 0;
-      return `<div class="mp-p${p.id === this.myId ? ' me' : ''}"><span class="av" style="background:${SEAT_COL[i % 8]}">${esc((p.name[0] || '?').toUpperCase())}</span><b>${esc(p.name)}</b>${p.id === L.hostId ? '<span class="tag gold">👑 Host</span>' : ''}${p.id === this.myId ? '<span class="tag">Du</span>' : ''}${inRound && !L.done ? '<span class="tag ok">🎲 spielt</span>' : p.ready ? '<span class="tag ok">✅ bereit</span>' : '<span class="tag wait">💤 nicht bereit</span>'}${vg ? `<span class="tag" title="Vorschlag">🗳️ ${vg.icon}</span>` : ''}</div>`;
+      const sk = cleanSkins(p.sk), fr = sk.frame && SKIN[sk.frame], tt = sk.title && SKIN[sk.title];
+      return `<div class="mp-p${p.id === this.myId ? ' me' : ''}"><span class="av" style="background:${SEAT_COL[i % 8]}${fr ? `;box-shadow:0 0 0 3px ${fr.ring},0 0 10px ${fr.ring}` : ''}"${fr ? ` title="${esc(fr.name)}"` : ''}>${esc((p.name[0] || '?').toUpperCase())}</span><b>${esc(p.name)}</b>${tt ? `<span class="tag" title="Titel">${esc(tt.txt)}</span>` : ''}${p.id === L.hostId ? '<span class="tag gold">👑 Host</span>' : ''}${p.id === this.myId ? '<span class="tag">Du</span>' : ''}${inRound && !L.done ? '<span class="tag ok">🎲 spielt</span>' : p.ready ? '<span class="tag ok">✅ bereit</span>' : '<span class="tag wait">💤 nicht bereit</span>'}${vg ? `<span class="tag" title="Vorschlag">🗳️ ${vg.icon}</span>` : ''}</div>`;
     }).join('') + (g && L.phase === 'lobby' && pl.bots ? Array.from({ length: pl.bots }, (_, i) => `<div class="mp-p bot"><span class="av">🤖</span><b>${BOT_NAMES[(i + (L.round || 0)) % BOT_NAMES.length]}</b><span class="tag">Bot</span></div>`).join('') : '');
     // Spielwahl
     const list = mpGames().map((x) => `<button type="button" class="rm-g${L.game === x.id ? ' on' : ''}" data-g="${x.id}" style="--g1:${x.bg[0]};--g2:${x.bg[1]}"><span class="i">${x.icon}</span><b>${esc(x.title)}</b><small>👥 ${mpPlayersLabel(x.mp)}</small>${votes[x.id] ? `<span class="vt">🗳️ ${votes[x.id]}</span>` : ''}</button>`).join('');
@@ -1886,6 +1905,10 @@ window.addEventListener('pagehide', () => { if (Room.st === 'on') { if (Room.isH
 setTimeout(() => Room.versionCheck(), 30000);
 setInterval(() => Room.versionCheck(), 10 * 60e3);
 window.Room = Room; window.MPPlay = MPPlay; window.Offline = Offline; window.MPUI = MPUI; // für Tests
+
+// Skin im Shop (oder in einem anderen Tab) geändert → den anderen im Raum Bescheid geben
+let lastSkSig = JSON.stringify(mySkins());
+Wallet.on(() => { const sk = mySkins(), sig = JSON.stringify(sk); if (sig === lastSkSig) return; lastSkSig = sig; if (Room.on && Room.L) Room.sendSet({ sk }); });
 
 // ---- games/blackjack.js ----
 // Stammtisch 21: Blackjack gegen den Dealer mit Coin-Einsatz.
@@ -2711,8 +2734,8 @@ MG.register({
 
     // ---------- Oberfläche ----------
     mount(root, M) {
-      let felt = 'radial-gradient(#1f7a4a,#0d3d24)';
-      try { const sk = SKIN[Wallet.d.equip.felt]; if (sk && sk.bg) felt = sk.bg; } catch (e) { /* Standardfilz */ }
+      // Tischfilz = Pokertisch-Skin des Hosts (alle sehen denselben Tisch); offline der eigene
+      const felt = M.felt ? M.felt() : 'radial-gradient(#1f7a4a,#0d3d24)';
       root.innerHTML = `<style>
         .bt{width:100%;max-width:980px;flex:1;display:flex;flex-direction:column;gap:8px;min-height:0;user-select:none}
         .bt-hud{display:flex;justify-content:center;gap:14px;font-size:14px;color:var(--mut);flex-wrap:wrap}.bt-hud b{color:var(--org)}
@@ -2819,7 +2842,7 @@ MG.register({
     help: `<p>Alle spielen gleichzeitig gegen den <b>Dealer</b>. Jeder bekommt <b>500 Tisch-Chips</b> (Spielgeld – deine 🪙 bleiben unangetastet).</p>
       <ol style="padding-left:18px"><li><b>Setzen</b> – alle wählen gleichzeitig ihren Einsatz (10–250).</li><li><b>Spielen</b> – komm näher an <b>21</b> als der Dealer, ohne drüber zu gehen. Bildkarten zählen 10, Ass 1 oder 11. <b>➕ Karte</b>, <b>✋ Stehen</b> oder <b>×2 Verdoppeln</b> (Einsatz verdoppeln, genau eine Karte).</li><li><b>Dealer</b> – deckt auf und zieht bis 17.</li></ol>
       <p>Sieg zahlt 1:1, <b>Blackjack</b> (Ass + Zehner mit den ersten 2 Karten) 3:2, Gleichstand = Einsatz zurück. Nach <b>8 Händen</b> gewinnt, wer die meisten Chips hat. Online hast du pro Phase 25 s, danach entscheidet der Computer.</p>
-      <p>Coins online: Sieg gegen Menschen 30 🪙, Platz 2 12 🪙, Platz 3 6 🪙, Teilnahme 4 🪙 – gegen Bots etwa ein Drittel. Der Tischfilz ist dein Pokertisch-Skin aus dem Shop.</p>`,
+      <p>Coins online: Sieg gegen Menschen 30 🪙, Platz 2 12 🪙, Platz 3 6 🪙, Teilnahme 4 🪙 – gegen Bots etwa ein Drittel. Der Tischfilz ist der Pokertisch-Skin des Hosts – alle sehen denselben Tisch.</p>`,
     mp,
   });
 })();
@@ -4638,7 +4661,7 @@ MG.register({
         const order = []; for (let k = 1; k <= n; k++) { const p = ((me < 0 ? -1 : me) + k + n) % n; if (p !== me) order.push(p); }
         E.opps.innerHTML = order.map((p) => {
           const c = v.counts[p], ps = M.players[p] || {};
-          return `<div class="mm-opp${v.turn === p && v.out < 0 ? ' on' : ''}" data-p="${p}" style="--sc:${M.color(p)}"><div class="mm-fan">${'<i></i>'.repeat(Math.min(c, 7))}</div><div class="who"><span class="av">${ps.bot ? '🤖' : esc((v.names[p][0] || '?').toUpperCase())}</span><b>${esc(v.names[p])}</b></div><span class="n">${c} ${c === 1 ? 'Karte' : 'Karten'}</span>${v.mau[p] || (c === 1 && v.out < 0) ? '<span class="mm-bub">Mau!</span>' : ''}</div>`;
+          return `<div class="mm-opp${v.turn === p && v.out < 0 ? ' on' : ''}" data-p="${p}" style="--sc:${M.color(p)}"><div class="mm-fan" style="--cb:${M.cardBack(p)}">${'<i></i>'.repeat(Math.min(c, 7))}</div><div class="who"><span class="av">${ps.bot ? '🤖' : esc((v.names[p][0] || '?').toUpperCase())}</span><b>${esc(v.names[p])}</b></div><span class="n">${c} ${c === 1 ? 'Karte' : 'Karten'}</span>${v.mau[p] || (c === 1 && v.out < 0) ? '<span class="mm-bub">Mau!</span>' : ''}</div>`;
         }).join('');
         // Mitte
         const canDraw = mine && !v.drew;
@@ -4710,7 +4733,7 @@ MG.register({
     help: `<p>Leg eine Karte auf den Ablagestapel, die in <b>Farbe oder Wert</b> passt. Wer nicht kann (oder will), zieht eine Karte – passt sie, darf sie sofort gelegt werden, sonst ist der Nächste dran.</p>
       <ul style="padding-left:18px"><li><b>7</b> – der Nächste zieht 2 Karten, außer er legt auch eine 7 (dann zieht der Übernächste 4 …).</li><li><b>8</b> – der Nächste setzt aus.</li><li><b>Bube</b> – geht auf alles (nur nicht auf einen Buben) und du wünschst dir eine Farbe.</li><li><b>Ass</b> – Richtungswechsel (ab 3 Spielern).</li></ul>
       <p>Bevor du deine <b>vorletzte Karte</b> legst, drück <b>📣 Mau!</b> – sonst gibt es eine Strafkarte. Wer zuerst keine Karten mehr hat, gewinnt. Pro Zug hast du online 25 Sekunden, danach spielt der Computer für dich.</p>
-      <p>Coins online: Sieg gegen Menschen 35 🪙, Platz 2 14 🪙, Teilnahme 4 🪙 – gegen Bots etwa ein Drittel. Der Kartenrücken ist dein Skin aus dem Shop.</p>`,
+      <p>Coins online: Sieg gegen Menschen 35 🪙, Platz 2 14 🪙, Teilnahme 4 🪙 – gegen Bots etwa ein Drittel. Jeder sieht die Karten der anderen mit deren Kartenrücken-Skin aus dem Shop, der Stapel hat den Rücken des Hosts.</p>`,
     mp,
   });
 })();
@@ -7388,7 +7411,7 @@ Was lässt Mario in vielen Spielen größer werden?|Ein Pilz|Eine Blume|Ein Ster
         const order = []; for (let k = 1; k <= v.n; k++) { const p = ((me < 0 ? -1 : me) + k + v.n) % v.n; if (p !== me) order.push(p); }
         E.opps.innerHTML = order.map((p) => {
           const ps = M.players[p] || {}, out = v.lives[p] < 0;
-          return `<div class="sw-op${v.turn === p && v.phase === 'play' ? ' on' : ''}${out ? ' out' : ''}" style="--sc:${M.color(p)}"><div class="sw-fan">${out ? '' : '<i></i><i></i><i></i>'}</div><div class="who"><span class="av">${ps.bot ? '🤖' : esc((v.names[p][0] || '?').toUpperCase())}</span><b>${esc(v.names[p])}</b></div><div class="sw-lv">${hearts(v, p)}</div>${v.knock === p ? '<span class="sw-bub">✊ klopft</span>' : ''}${v.dealer === p ? '<span class="sw-bub d">🂠 gibt</span>' : ''}</div>`;
+          return `<div class="sw-op${v.turn === p && v.phase === 'play' ? ' on' : ''}${out ? ' out' : ''}" style="--sc:${M.color(p)}"><div class="sw-fan" style="--cb:${M.cardBack(p)}">${out ? '' : '<i></i><i></i><i></i>'}</div><div class="who"><span class="av">${ps.bot ? '🤖' : esc((v.names[p][0] || '?').toUpperCase())}</span><b>${esc(v.names[p])}</b></div><div class="sw-lv">${hearts(v, p)}</div>${v.knock === p ? '<span class="sw-bub">✊ klopft</span>' : ''}${v.dealer === p ? '<span class="sw-bub d">🂠 gibt</span>' : ''}</div>`;
         }).join('');
         // Mitte
         const newMid = fresh && (e.k === 'deal' || (e.k === 'push' && e.fresh) || e.k === 'all');
@@ -7446,7 +7469,7 @@ Was lässt Mario in vielen Spielen größer werden?|Ein Pilz|Eine Blume|Ein Ster
       <ul style="padding-left:18px"><li><b>Tauschen</b> – eine deiner Karten antippen, dann eine aus der Mitte (oder umgekehrt).</li><li><b>Alle 3 tauschen</b> – deine Hand gegen die ganze Mitte.</li><li><b>Schieben</b> – nichts tun. Schieben alle nacheinander, kommen 3 neue Karten in die Mitte.</li><li><b>Klopfen</b> – „mir reicht's“: Jeder andere hat noch genau einen Zug, dann wird aufgedeckt (nicht in der ersten Runde).</li></ul>
       <p><b>31</b> (Ass + zwei Zehner-Karten einer Farbe) beendet die Runde sofort. <b>🔥 Feuer</b> (drei Asse) gewinnt die Runde sofort – <i>alle anderen</i> verlieren ein Leben.</p>
       <p>Bei der Abrechnung verliert, wer <b>am wenigsten</b> hat, ein ❤️ (bei Gleichstand alle Letzten). Ohne Leben <b>schwimmst</b> du 🏊 – verlierst du dann noch einmal, bist du raus. Wer als Letzter übrig ist, gewinnt. Online hast du 25 s pro Zug, danach zieht der Computer für dich.</p>
-      <p>Coins online: Sieg gegen Menschen 35 🪙, Platz 2 14 🪙, Platz 3 7 🪙, Teilnahme 4 🪙 – gegen Bots etwa ein Drittel. Kartenrücken = dein Skin.</p>`,
+      <p>Coins online: Sieg gegen Menschen 35 🪙, Platz 2 14 🪙, Platz 3 7 🪙, Teilnahme 4 🪙 – gegen Bots etwa ein Drittel. Die Karten der anderen haben deren Kartenrücken-Skin, der Stapel den des Hosts.</p>`,
     mp,
   });
 })();
@@ -8859,7 +8882,7 @@ const UI = {
   // ---------- Skin-Shop ----------
   shop(m) {
     const d = Wallet.d, deal = dailyDeal();
-    m.appendChild(h(`<div class="banner"><div class="bi">🛍️</div><div><b>Skin-Shop</b> – kauf mit Guru-Coins 🪙 Lackierungen fürs Kart, Kartenrücken und Tische für den Pokerabend, Rahmen und Titel fürs Profil. <span class="muted">Kartenrücken & Tisch wirken schon jetzt in den Karten-MiniGames.</span></div><button class="btn" type="button" id="toBank">💱 Coins eintauschen</button></div>`));
+    m.appendChild(h(`<div class="banner"><div class="bi">🛍️</div><div><b>Skin-Shop</b> – kauf mit Guru-Coins 🪙 Lackierungen fürs Kart, Kartenrücken und Tische für den Pokerabend, Rahmen und Titel fürs Profil. <span class="muted">Kartenrücken & Tisch sehen auch die anderen – im Pokerabend und in den Online-Kartenspielen. Rahmen & Titel stehen in der Raum-Liste.</span></div><button class="btn" type="button" id="toBank">💱 Coins eintauschen</button></div>`));
     $('#toBank').onclick = () => this.show('bank');
     m.appendChild(h(`<div class="chips" id="slots"><button type="button" class="chip${this.shopSlot === 'all' ? ' on' : ''}" data-sl="all">✨ Alle</button>${Object.entries(SLOTS).map(([k, v]) => `<button type="button" class="chip${this.shopSlot === k ? ' on' : ''}" data-sl="${k}">${v}</button>`).join('')}</div>`));
     $('#slots').onclick = (e) => { const s = e.target.dataset.sl; if (s) { this.shopSlot = s; this.render(); } };
