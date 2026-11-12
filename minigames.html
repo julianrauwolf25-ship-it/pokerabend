@@ -269,7 +269,7 @@ var GuruCore = (function () {
   var REWARD_MAX = 200;                            // max. 🪙 pro einzelner Belohnung
   var LOW_GAMES = { memory: true };                // Rekord = kleinster Wert
   var BASE = { sats: 0.5, chips: 0.01 };           // 2 ⚡ = 1 🪙 · 100 ♠ = 1 🪙 (Grundkurs, täglich ±15 %)
-  // [id, Platz, Name, Preis, Seltenheit]
+  // [id, Platz, Name, Preis, Seltenheit, Währung (Standard 🪙 'coins'; 'sats' = ⚡ aus dem Kart)]
   var SKIN_DATA = [
     ['k_orange', 'kart', 'Orange Pill', 120, 1], ['k_laser', 'kart', 'Laser Eyes', 260, 2], ['k_diamond', 'kart', 'Diamond Hands', 480, 3],
     ['k_bear', 'kart', 'Bärenmarkt', 200, 2], ['k_lambo', 'kart', 'Wen Lambo (Gold)', 900, 4], ['k_moon', 'kart', 'Moon-Chrome', 650, 3],
@@ -277,17 +277,19 @@ var GuruCore = (function () {
     ['c_classic', 'cards', 'Stammtisch Klassik', 80, 1], ['c_btc', 'cards', 'Bitcoin-Netz', 220, 2], ['c_candle', 'cards', 'Candlestick', 300, 3], ['c_gold', 'cards', 'Guru-Gold', 800, 4],
     ['f_green', 'felt', 'Grün Klassik', 100, 1], ['f_red', 'felt', 'Bärenrot', 240, 2], ['f_night', 'felt', 'Mitternachts-Chart', 380, 3], ['f_orange', 'felt', 'Orange Pill Lounge', 750, 4],
     ['fr_bull', 'frame', 'Bullen-Rahmen', 150, 2], ['fr_whale', 'frame', 'Wal-Rahmen', 420, 3], ['fr_rocket', 'frame', 'To-the-Moon-Rahmen', 850, 4],
+    ['k_fbull', 'formel', 'Bull Market', 250, 3, 'sats'], ['k_fbear', 'formel', 'Bear Market', 250, 3, 'sats'], // v32: Pfeffis Formel-Renner – gekauft in der Kart-Lobby mit ⚡ (nicht im Shop)
     ['t_paper', 'title', '„Paperhands“', 30, 1], ['t_hodl', 'title', '„HODLer“', 120, 2], ['t_guru', 'title', '„Chart-Guru“', 400, 3], ['t_satoshi', 'title', '„Satoshis Erbe“', 1500, 4],
   ];
   var SKIN_BY = {};
-  SKIN_DATA.forEach(function (s) { SKIN_BY[s[0]] = { id: s[0], slot: s[1], name: s[2], price: s[3], rar: s[4] }; });
+  SKIN_DATA.forEach(function (s) { SKIN_BY[s[0]] = { id: s[0], slot: s[1], name: s[2], price: s[3], rar: s[4], cur: s[5] || 'coins' }; });
+  var DEAL_SKINS = SKIN_DATA.filter(function (s) { return !s[5]; }); // Tagesangebot nur bei 🪙-Skins
 
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function today(d) { d = d || new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
   function hashStr(s) { var x = 2166136261; for (var i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619); } return x >>> 0; }
   function seeded(seed) { var s = seed >>> 0; return function () { s = (s + 0x6D2B79F5) >>> 0; var t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   function rate(cur, date) { return BASE[cur] * (0.85 + seeded(hashStr(cur + today(date)))() * 0.3); }
-  function dailyDeal(date) { return SKIN_DATA[Math.floor(seeded(hashStr('deal' + today(date)))() * SKIN_DATA.length)][0]; }
+  function dailyDeal(date) { return DEAL_SKINS[Math.floor(seeded(hashStr('deal' + today(date)))() * DEAL_SKINS.length)][0]; }
   function priceOf(id, date) { var s = SKIN_BY[id]; if (!s) return null; return id === dailyDeal(date) ? Math.round(s.price * 0.7) : s.price; }
   function num(x) { x = Math.round(Number(x)); return isFinite(x) ? x : 0; }
   function txt(s, n) { return String(s == null ? '' : s).replace(/[<>]/g, '').slice(0, n || 60); }
@@ -362,8 +364,8 @@ var GuruCore = (function () {
       case 'buy': {
         var s = SKIN_BY[op.sid]; if (!s) return { ok: false, err: 'unbekannt' };
         if (d.owned[s.id]) return { ok: false, err: 'schon da' };
-        var p = priceOf(s.id, date); if (d.coins < p) return { ok: false, err: 'zu wenig' };
-        d.coins -= p; d.owned[s.id] = now; d.equip[s.slot] = s.id; log(d, 'coins', -p, 'Skin: ' + s.name, now);
+        var p = priceOf(s.id, date), sc = s.cur; if (!(d[sc] >= p)) return { ok: false, err: 'zu wenig' };
+        d[sc] -= p; d.owned[s.id] = now; d.equip[s.slot] = s.id; log(d, sc, -p, 'Skin: ' + s.name, now);
         return { ok: true };
       }
       case 'equip': {
@@ -572,7 +574,7 @@ const Rates = {
 
 // ---------- Skin-Katalog (Preise/Namen aus GuruCore, hier nur das Aussehen) ----------
 const RAR = { 1: 'Gewöhnlich', 2: 'Selten', 3: 'Episch', 4: 'Legendär' };
-const SLOTS = { kart: '🏎️ Kart-Lackierung', boost: '🔥 Boost-Flamme', cards: '🂠 Kartenrücken', felt: '🟩 Pokertisch', frame: '🖼️ Profilrahmen', title: '🏷️ Titel' };
+const SLOTS = { kart: '🏎️ Kart-Lackierung', formel: '🏁 Formel-Renner', boost: '🔥 Boost-Flamme', cards: '🂠 Kartenrücken', felt: '🟩 Pokertisch', frame: '🖼️ Profilrahmen', title: '🏷️ Titel' };
 const kartSvg = (a, b, stripe = '#fff') => `<svg viewBox="0 0 120 70" width="120" height="70"><ellipse cx="60" cy="62" rx="48" ry="6" fill="rgba(0,0,0,.45)"/><rect x="14" y="40" width="20" height="18" rx="5" fill="#222"/><rect x="86" y="40" width="20" height="18" rx="5" fill="#222"/><path d="M20 44 Q22 26 44 24 L80 24 Q100 26 102 44 L100 52 L22 52 Z" fill="url(#g${hashStr(a + b)})"/><defs><linearGradient id="g${hashStr(a + b)}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect x="56" y="24" width="8" height="28" fill="${stripe}" opacity=".85"/><circle cx="60" cy="20" r="9" fill="#ffd9b0" stroke="#222" stroke-width="2"/><rect x="48" y="12" width="24" height="7" rx="3" fill="${a}"/></svg>`;
 const flameSvg = (a, b) => `<svg viewBox="0 0 120 70" width="120" height="70"><path d="M10 35 Q40 10 70 30 Q95 20 112 35 Q95 50 70 40 Q40 60 10 35Z" fill="${a}"/><path d="M30 35 Q50 24 70 33 Q88 28 100 35 Q88 42 70 37 Q50 46 30 35Z" fill="${b}"/></svg>`;
 const SKINS = [
@@ -583,6 +585,9 @@ const SKINS = [
   { id: 'k_bear', pv: () => kartSvg('#8a8a8a', '#3a1010', '#ff5a5a') },
   { id: 'k_lambo', pv: () => kartSvg('#fff1a8', '#c89200', '#7a4b00') },
   { id: 'k_moon', pv: () => kartSvg('#f0f0ff', '#7b7ba8', '#b07cff') },
+  // v32: Pfeffis Formel-Renner (bezahlt mit ⚡)
+  { id: 'k_fbull', pv: () => formelSvg('#1fa64a', '#ffd23a', '🐂') },
+  { id: 'k_fbear', pv: () => formelSvg('#c62828', '#2a2a30', '🐻') },
   // Boost
   { id: 'b_green', pv: () => flameSvg('#2bb673', '#b6ffd9') },
   { id: 'b_plasma', pv: () => flameSvg('#7b2cff', '#e3c6ff') },
@@ -607,6 +612,11 @@ const SKINS = [
   { id: 't_satoshi', txt: '₿ Satoshis Erbe' },
 ];
 for (const s of SKINS) Object.assign(s, GuruCore.SKIN_BY[s.id]);
+// v32: Vorschau Formel-Renner mit vielen kleinen Köpfen
+function formelSvg(a, b, e) {
+  const heads = [[30, 30], [46, 26], [62, 25], [78, 27], [94, 31], [38, 44], [56, 42], [74, 42], [90, 45]].map(([x, y]) => `<text x="${x}" y="${y}" font-size="11" text-anchor="middle">${e}</text>`).join('');
+  return `<svg viewBox="0 0 120 70" width="120" height="70"><rect x="6" y="20" width="10" height="34" rx="2" fill="${b}"/><rect x="104" y="24" width="10" height="26" rx="2" fill="${b}"/><path d="M14 34 Q22 22 50 22 L92 26 Q112 30 114 38 Q112 46 92 48 L50 52 Q22 52 14 42Z" fill="${a}"/><circle cx="58" cy="30" r="6" fill="#efe3cc"/><path d="M53 26 L58 15 L63 26Z" fill="#d81e1e"/><circle cx="58" cy="15" r="2" fill="#fff"/><circle cx="30" cy="56" r="9" fill="#1d1d20"/><circle cx="90" cy="56" r="9" fill="#1d1d20"/><circle cx="30" cy="56" r="4" fill="#ffd23a"/><circle cx="90" cy="56" r="4" fill="#ffd23a"/>${heads}</svg>`;
+}
 const SKIN = Object.fromEntries(SKINS.map((s) => [s.id, s]));
 function skinPreview(s) {
   if (s.pv) return s.pv();
@@ -616,6 +626,7 @@ function skinPreview(s) {
   if (s.slot === 'title') return `<div class="ttl r${s.rar}">${esc(s.txt)}</div>`;
   return '';
 }
+const CUR_E = (s) => (s.cur === 'sats' ? '⚡' : '🪙');
 const dailyDeal = () => GuruCore.dailyDeal(new Date());
 const priceOf = (s) => GuruCore.priceOf(s.id, new Date());
 // Kartenrücken für die Karten-MiniGames (angelegter Skin oder Standard)
@@ -938,7 +949,7 @@ var MPCore = (function () {
 // ================================================================
 const MG_NS = 'guruhalle-mg-v1-';
 const NET_VER = 1;
-const MG_BUILD = 202611050715;
+const MG_BUILD = 202611122042;
 const STAMMTISCH = 'stammtisch';
 const CODE_ABC = 'abcdefghjkmnpqrstuvwxyz23456789'; // ohne i, l, o, 0, 1 (verwechselbar)
 const Net = {
@@ -8880,25 +8891,26 @@ const UI = {
   },
   help() { const g = this.cur; if (!g) return; const md = h(`<div class="modal"><div class="box"><h2 style="margin-bottom:8px">${g.icon} ${esc(g.title)}</h2>${g.help || '<p>Viel Spaß!</p>'}<div class="rowc" style="margin-top:12px"><button class="btn main" type="button">Alles klar</button></div></div></div>`); md.onclick = (e) => { if (e.target === md || e.target.tagName === 'BUTTON') md.remove(); }; document.body.appendChild(md); },
   // ---------- Skin-Shop ----------
+  // (CUR_E: Währungszeichen je Skin – 🪙 oder ⚡)
   shop(m) {
     const d = Wallet.d, deal = dailyDeal();
     m.appendChild(h(`<div class="banner"><div class="bi">🛍️</div><div><b>Skin-Shop</b> – kauf mit Guru-Coins 🪙 Lackierungen fürs Kart, Kartenrücken und Tische für den Pokerabend, Rahmen und Titel fürs Profil. <span class="muted">Kartenrücken & Tisch sehen auch die anderen – im Pokerabend und in den Online-Kartenspielen. Rahmen & Titel stehen in der Raum-Liste.</span></div><button class="btn" type="button" id="toBank">💱 Coins eintauschen</button></div>`));
     $('#toBank').onclick = () => this.show('bank');
-    m.appendChild(h(`<div class="chips" id="slots"><button type="button" class="chip${this.shopSlot === 'all' ? ' on' : ''}" data-sl="all">✨ Alle</button>${Object.entries(SLOTS).map(([k, v]) => `<button type="button" class="chip${this.shopSlot === k ? ' on' : ''}" data-sl="${k}">${v}</button>`).join('')}</div>`));
+    m.appendChild(h(`<div class="chips" id="slots"><button type="button" class="chip${this.shopSlot === 'all' ? ' on' : ''}" data-sl="all">✨ Alle</button>${Object.entries(SLOTS).filter(([k]) => k !== 'formel').map(([k, v]) => `<button type="button" class="chip${this.shopSlot === k ? ' on' : ''}" data-sl="${k}">${v}</button>`).join('')}</div>`));
     $('#slots').onclick = (e) => { const s = e.target.dataset.sl; if (s) { this.shopSlot = s; this.render(); } };
-    const list = SKINS.filter((s) => this.shopSlot === 'all' || s.slot === this.shopSlot).sort((a, b) => (b.id === deal) - (a.id === deal) || a.slot.localeCompare(b.slot) || a.price - b.price);
+    const list = SKINS.filter((s) => s.slot !== 'formel' && (this.shopSlot === 'all' || s.slot === this.shopSlot)).sort((a, b) => (b.id === deal) - (a.id === deal) || a.slot.localeCompare(b.slot) || a.price - b.price);
     const grid = h('<div class="shopgrid"></div>'); m.appendChild(grid);
     grid.innerHTML = list.map((s) => {
       const own = d.owned[s.id], eq = d.equip[s.slot] === s.id, p = priceOf(s);
       return `<div class="si r${s.rar}${eq ? ' eq' : ''}">${s.id === deal && !own ? '<span class="deal">−30 % HEUTE</span>' : ''}<div class="pv">${skinPreview(s)}</div>
         <span class="rar r${s.rar}">${RAR[s.rar]} · ${SLOTS[s.slot].split(' ').slice(1).join(' ')}</span><b>${esc(s.name)}</b>
-        ${own ? `<button class="btn sm${eq ? ' green' : ''}" type="button" data-eq="${s.id}">${eq ? '✔ Angelegt' : 'Anlegen'}</button>` : `<button class="btn sm main" type="button" data-buy="${s.id}" ${d.coins < p ? 'disabled' : ''}>${p !== s.price ? `<s style="opacity:.6">${s.price}</s> ` : ''}${fmt(p)} 🪙 kaufen</button>`}</div>`;
+        ${own ? `<button class="btn sm${eq ? ' green' : ''}" type="button" data-eq="${s.id}">${eq ? '✔ Angelegt' : 'Anlegen'}</button>` : `<button class="btn sm main" type="button" data-buy="${s.id}" ${(d[s.cur] || 0) < p ? 'disabled' : ''}>${p !== s.price ? `<s style="opacity:.6">${s.price}</s> ` : ''}${fmt(p)} ${CUR_E(s)} kaufen</button>`}</div>`;
     }).join('');
     grid.onclick = (e) => {
       const b = e.target.closest('button'); if (!b) return;
       if (b.dataset.buy) {
         const s = SKIN[b.dataset.buy], p = priceOf(s);
-        if (!b.dataset.sure) { b.dataset.sure = 1; b.textContent = `Sicher? ${p} 🪙`; setTimeout(() => { if (b.isConnected) this.render(); }, 3000); return; }
+        if (!b.dataset.sure) { b.dataset.sure = 1; b.textContent = `Sicher? ${p} ${CUR_E(s)}`; setTimeout(() => { if (b.isConnected) this.render(); }, 3000); return; }
         const r = Wallet.op({ op: 'buy', sid: s.id }); if (!r.ok) { toast('Kauf ging nicht: ' + esc(r.err)); this.render(); return; } { Sound.fx('win'); toast(`✨ ${esc(s.name)} gekauft und angelegt!`); this.pills(true); this.render(); }
       }
       if (b.dataset.eq) { const s = SKIN[b.dataset.eq]; Wallet.op({ op: 'equip', slot: s.slot, sid: Wallet.d.equip[s.slot] === s.id ? null : s.id }); Sound.fx('click'); this.render(); }
